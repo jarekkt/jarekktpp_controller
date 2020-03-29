@@ -30,13 +30,13 @@
 
 /* USER CODE END Includes */
 
-extern IWDG_HandleTypeDef hiwdg;
+extern IWDG_HandleTypeDef hiwdg1;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_IWDG_Init(void);
+void MX_IWDG1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 

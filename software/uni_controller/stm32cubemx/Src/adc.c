@@ -29,63 +29,77 @@ ADC_HandleTypeDef hadc1;
 /* ADC1 init function */
 void MX_ADC1_Init(void)
 {
+  ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
 
-  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
+  /** Common config 
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV16;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = ENABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 5;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
+  hadc1.Init.LowPowerAutoWait = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.NbrOfConversion = 5;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
+  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc1.Init.LeftBitShift = ADC_LEFTBITSHIFT_NONE;
+  hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+  /** Configure the ADC multi-mode 
+  */
+  multimode.Mode = ADC_MODE_INDEPENDENT;
+  if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel 
   */
   sConfig.Channel = ADC_CHANNEL_4;
-  sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SingleDiff = ADC_SINGLE_ENDED;
+  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+  sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+  /** Configure Regular Channel 
   */
   sConfig.Channel = ADC_CHANNEL_5;
-  sConfig.Rank = 2;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+  /** Configure Regular Channel 
   */
-  sConfig.Channel = ADC_CHANNEL_6;
-  sConfig.Rank = 3;
+  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+  /** Configure Regular Channel 
   */
   sConfig.Channel = ADC_CHANNEL_7;
-  sConfig.Rank = 4;
+  sConfig.Rank = ADC_REGULAR_RANK_4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+  /** Configure Regular Channel 
   */
-  sConfig.Channel = ADC_CHANNEL_12;
-  sConfig.Rank = 5;
+  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Rank = ADC_REGULAR_RANK_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -103,28 +117,31 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 
   /* USER CODE END ADC1_MspInit 0 */
     /* ADC1 clock enable */
-    __HAL_RCC_ADC1_CLK_ENABLE();
+    __HAL_RCC_ADC12_CLK_ENABLE();
   
-    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
     /**ADC1 GPIO Configuration    
-    PC2     ------> ADC1_IN12
-    PC3     ------> ADC1_IN13
-    PA4     ------> ADC1_IN4
-    PA5     ------> ADC1_IN5
-    PA6     ------> ADC1_IN6
-    PA7     ------> ADC1_IN7
-    PC4     ------> ADC1_IN14 
+    PA2     ------> ADC1_INP14
+    PA7     ------> ADC1_INP7
+    PC4     ------> ADC1_INP4
+    PB1     ------> ADC1_INP5 
     */
-    GPIO_InitStruct.Pin = ADC_S1_Pin|ADC_S2_Pin|ADC_S3_Pin;
+    GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_4;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = ADC_TANK1_Pin|ADC_TANK2_Pin|ADC_TANK3_Pin|ADC_TANK4_Pin;
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -141,20 +158,19 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
   /* USER CODE END ADC1_MspDeInit 0 */
     /* Peripheral clock disable */
-    __HAL_RCC_ADC1_CLK_DISABLE();
+    __HAL_RCC_ADC12_CLK_DISABLE();
   
     /**ADC1 GPIO Configuration    
-    PC2     ------> ADC1_IN12
-    PC3     ------> ADC1_IN13
-    PA4     ------> ADC1_IN4
-    PA5     ------> ADC1_IN5
-    PA6     ------> ADC1_IN6
-    PA7     ------> ADC1_IN7
-    PC4     ------> ADC1_IN14 
+    PA2     ------> ADC1_INP14
+    PA7     ------> ADC1_INP7
+    PC4     ------> ADC1_INP4
+    PB1     ------> ADC1_INP5 
     */
-    HAL_GPIO_DeInit(GPIOC, ADC_S1_Pin|ADC_S2_Pin|ADC_S3_Pin);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_7);
 
-    HAL_GPIO_DeInit(GPIOA, ADC_TANK1_Pin|ADC_TANK2_Pin|ADC_TANK3_Pin|ADC_TANK4_Pin);
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_4);
+
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_1);
 
   /* USER CODE BEGIN ADC1_MspDeInit 1 */
 

@@ -1,7 +1,7 @@
 #include "serial_srv.h"
 
 
-#define UF(inst_, flag_)  ( (((inst_)->SR & (flag_)) == (flag_) )? SET : RESET)
+#define UF(inst_, flag_)  ( (((inst_)->CR1 & (flag_)) == (flag_) )? SET : RESET)
 
 
 
@@ -140,10 +140,10 @@ void ATTRIBUTE_IN_RAM UARTx_IRQHandler(uint32_t id,serial_usart_ctx_t * pctx)
   portBASE_TYPE    hpt_woken1 = pdFALSE;  
   
 
-  if( UF(pctx->handle->Instance,USART_SR_RXNE)  != RESET)
+  while( UF(pctx->handle->Instance,UART_FLAG_RXNE)  != RESET)
   {
     /* Read one byte from the receive data register */
-    cc          = (pctx->handle->Instance->DR & (uint8_t)0x00FF);
+    cc          = (pctx->handle->Instance->RDR & (uint8_t)0x00FF);
     pctx->rec_char(id,cc,&hpt_woken1);
   }
 
@@ -153,7 +153,7 @@ void ATTRIBUTE_IN_RAM UARTx_IRQHandler(uint32_t id,serial_usart_ctx_t * pctx)
     /* Write one byte to the transmit data register */
     if(pctx->TxHead != pctx->TxTail)
     {
-      pctx->handle->Instance->DR  =  pctx->TxBuffer[pctx->TxTail] & 0x00FF;
+      pctx->handle->Instance->TDR  =  pctx->TxBuffer[pctx->TxTail] & 0x00FF;
       pctx->TxTail = ( pctx->TxTail + 1) % DIM(pctx->TxBuffer);
       
     }
@@ -264,12 +264,12 @@ void    srv_serial_puts(uint32_t port_id,const char * buffer,int length)
     // Send the string - in blocking mode
     while(length > 0)
     {
-        while(UF(ctx->handle->Instance,USART_SR_TXE) != SET)
+        while(UF(ctx->handle->Instance,UART_FLAG_TXE) != SET)
         {
           ;
         }
 
-        ctx->handle->Instance->DR = (*buffer & (uint8_t)0xFF);
+        ctx->handle->Instance->TDR = (*buffer & (uint8_t)0xFF);
         buffer++;
         length--;
     }               

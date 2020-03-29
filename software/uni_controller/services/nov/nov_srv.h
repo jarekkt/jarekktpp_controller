@@ -13,7 +13,7 @@
 #ifndef _WIN32
 
 #define VAR_NV_ATTR      __attribute__ ((section (".var_nv")))
-#define CALTABLE_ATTR    __attribute__ ((section (".caltable"),used))
+
 
 #define BT_FLT    0
 #define BT_I32    1
@@ -35,7 +35,7 @@ typedef struct
 extern char __var_nv_start__[];
 extern char __var_nv_end__[];
 
-#define __var_nv_size__ (__var_nv_end__ - __var_nv_start__)
+#define 	__var_nv_size__ (__var_nv_end__ - __var_nv_start__)
 
 #else
 
@@ -44,7 +44,6 @@ extern char __var_nv_end__[];
 #endif
 
 
-#define NOV_OVERWRITE_CALIB  0xBABA
 
 
 /*
@@ -58,18 +57,12 @@ typedef void (*srv_printf_t) (uint32_t level_mask,const char * format, ...);
 int   srv_nov_init(void);
 void  srv_nov_init_default(int mode);
 void  srv_nov_print_info(srv_printf_t pprintf);
-int   srv_nov_store(uint32_t destroy_mask);
-int   srv_nov_store_shadow_binary(void);int   srv_nov_is_changed(void);
-void  srv_nov_register(void * data, size_t size,void (*default_fn)(void));
-void  srv_nov_cal_register(const var_caltable_t * data, size_t size);
-void  srv_nov_set_idle_hook(void (*idle_fn)(void));
+int   srv_nov_is_changed(void);
+int   srv_nov_store(void);
 void  srv_nov_start(void);
+void  srv_nov_register(void * data, size_t size, void (*default_fn)(void));
 
 
-int   srv_nov_store_shadow_init(void);
-var_caltable_t * srv_nov_store_shadow_get(uint32_t ii);
-int   srv_nov_store_shadow_add(const uint32_t * words,uint32_t cnt);
-int   srv_nov_store_shadow_read(void);
 
 
 

@@ -8,8 +8,8 @@
 
 
 #include "i2c_srv.h"
-#include "stm32f4xx_hal_i2c.h"
-#include "stm32f4xx_ll_i2c.h"
+#include "stm32h7xx_hal_i2c.h"
+#include "stm32h7xx_ll_i2c.h"
 #include "services.h"
 #include "i2c.h"
 
@@ -45,9 +45,9 @@ static void     srv_i2c_reconfiguration(uint32_t iidx)
   if(iidx == 0)
   {
       
-      LL_I2C_EnableReset(I2C1);
+	  LL_I2C_Disable(I2C1);
       memset(&hi2c1,0,sizeof(hi2c1));
-      LL_I2C_DisableReset(I2C1);
+      LL_I2C_Enable(I2C1);
       MX_I2C1_Init();
   }
   else
@@ -76,7 +76,7 @@ void     srv_i2c_reset_slaves(uint32_t iidx)
       srv_i2c_reset_cnt[0]++;
 
 
-      // I2C2 on PF1(SCL) and PF0 ( SDA)
+      // I2C1
 
       GPIO_InitStruct.Pin   = I2C1_SCL_Pin;
       GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;

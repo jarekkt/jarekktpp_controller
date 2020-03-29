@@ -9,95 +9,35 @@
 #include "services.h"
 #include "middleware.h"
  
+#define NV_SHADOW_BUFFER_SIZE  2048
 
+#define STORE_FIRST_COPY_1 0
+#define STORE_FIRST_COPY_2 1
 
-
-/* Base address of the Flash sectors */
-#define ADDR_FLASH_SECTOR_0     ((uint32_t)0x08000000) /* Base @ of Sector 0, 16 Kbytes */
-#define ADDR_FLASH_SECTOR_1     ((uint32_t)0x08004000) /* Base @ of Sector 1, 16 Kbytes */
-#define ADDR_FLASH_SECTOR_2     ((uint32_t)0x08008000) /* Base @ of Sector 2, 16 Kbytes */
-#define ADDR_FLASH_SECTOR_3     ((uint32_t)0x0800C000) /* Base @ of Sector 3, 16 Kbytes */
-#define ADDR_FLASH_SECTOR_4     ((uint32_t)0x08010000) /* Base @ of Sector 4, 64 Kbytes */
-#define ADDR_FLASH_SECTOR_5     ((uint32_t)0x08020000) /* Base @ of Sector 5, 128 Kbytes */
-#define ADDR_FLASH_SECTOR_6     ((uint32_t)0x08040000) /* Base @ of Sector 6, 128 Kbytes */
-#define ADDR_FLASH_SECTOR_7     ((uint32_t)0x08060000) /* Base @ of Sector 7, 128 Kbytes */
-#define ADDR_FLASH_SECTOR_8     ((uint32_t)0x08080000) /* Base @ of Sector 8, 128 Kbytes */
-#define ADDR_FLASH_SECTOR_9     ((uint32_t)0x080A0000) /* Base @ of Sector 9, 128 Kbytes */
-#define ADDR_FLASH_SECTOR_10    ((uint32_t)0x080C0000) /* Base @ of Sector 10, 128 Kbytes */
-#define ADDR_FLASH_SECTOR_11    ((uint32_t)0x080E0000) /* Base @ of Sector 11, 128 Kbytes */
-
-
-extern const char      __storage1_start__[];
-extern const char      __storage1_end__[];
-extern const uint32_t  __storage1_size__;
-
-extern const char      __storage2_start__[];
-extern const char      __storage2_end__[];
-extern const uint32_t  __storage2_size__;
-
-
-extern const char      __storage_shadow_start__[];
-extern const char      __storage_shadow_end__[];
-
-
-extern const char      __caltable_start__[];
-extern const char      __caltable_end__[];
-extern const uint32_t  __caltable_size__;
-
-
-#define   STORE_FIRST_COPY_1    0
-#define   STORE_FIRST_COPY_2    1
-
-
-typedef struct
-{
-    uint32_t start;
-    uint32_t size;
-}flash_sect_t;
-
-
-const flash_sect_t  flash_layout[] =
-{ 
-    { ADDR_FLASH_SECTOR_0, 16*1024 },
-    { ADDR_FLASH_SECTOR_1, 16*1024 },
-    { ADDR_FLASH_SECTOR_2, 16*1024 },
-    { ADDR_FLASH_SECTOR_3, 16*1024 },
-    { ADDR_FLASH_SECTOR_4, 64*1024 },
-    { ADDR_FLASH_SECTOR_5, 128*1024 },
-    { ADDR_FLASH_SECTOR_6, 128*1024 },
-    { ADDR_FLASH_SECTOR_7, 128*1024 },
-    { ADDR_FLASH_SECTOR_8, 128*1024 },
-    { ADDR_FLASH_SECTOR_9, 128*1024 },
-    { ADDR_FLASH_SECTOR_10, 128*1024 },
-    { ADDR_FLASH_SECTOR_11, 128*1024 }
-};
 
 typedef void (* default_fn)(void);
 typedef void (* idle_fn)(void);
 
-static default_fn  default_functions[64];
-static uint32_t    default_functions_cnt = 0; 
-static idle_fn     idle_function = NULL;
-static int         done = 0; 
-static int32_t     cal_table_offset = -1;
-const  char *      cal_table_copy = __storage_shadow_start__;
-static uint32_t    cal_recovered = 0;
-static uint32_t    cal_faulty    = 0;
-static uint32_t    destroyed     = 0;
-static uint32_t    store_first   = STORE_FIRST_COPY_1;
+typedef struct
+{
+	default_fn  default_functions[64];
+	uint32_t    default_functions_cnt;
+	uint32_t    done;
+	uint32_t	store_first;
+
+	uint32_t	shadow_buf[NV_SHADOW_BUFFER_SIZE];
+
+}nov_ctx_t;
+
+
+
+nov_ctx_t		nctx;
 
 
 
 
-#define cal_table          ((var_caltable_t*)__caltable_start__)
-#define cal_table_size     ((uint32_t)(__caltable_end__ - __caltable_start__))
 
-
-
-uint32_t   nov_block_masks[3];
-
-
-static int srv_nov_store_copy(const char * copy,const char * src,uint32_t size,int destroy_nov);
+static int srv_nov_store_copy(int idx);
 
 
 /*! Table of CRC values for highorder byte */
@@ -216,6 +156,7 @@ static uint16_t crc16(const unsigned char *puchMsg,uint16_t usDataLen)
 int  srv_nov_read_flash(void)
 {
     uint8_t              result = 1;
+#if 0
     uint32_t             crc;
     uint32_t             dwords;
     uint32_t             r_crc;
@@ -261,7 +202,7 @@ int  srv_nov_read_flash(void)
             state |= 0x08;
             // Only second copy valid - restore first copy to guarantee that the first one is always valid
             memcpy(__var_nv_start__,__storage2_start__,__var_nv_size__);
-            store_first = STORE_FIRST_COPY_1;
+            nctx.store_first = STORE_FIRST_COPY_1;
             result      = 0;
         }
     }
@@ -273,9 +214,10 @@ int  srv_nov_read_flash(void)
         {
             state |= 0x20;
             // First was valid, second corrupted. Restore second.
-            store_first = STORE_FIRST_COPY_2;
+            nctx.store_first = STORE_FIRST_COPY_2;
         }        
     }
+#endif
 
     return result;    
 }
@@ -309,66 +251,28 @@ void srv_nov_init_default(int mode)
 
 }
 
-int32_t srv_nov_store_shadow_binary_read() 
-{
-   int32_t     result = -1;
-   uint32_t    crc;
-   uint32_t    r_crc;
-   uint32_t             dwords;
-    
-         
-   dwords = ( __var_nv_size__+ sizeof(uint32_t) -1)/sizeof(uint32_t);
-
-   // Binary mode
-   crc   = crc16(__storage_shadow_start__,__var_nv_size__);
-   r_crc = ((uint32_t *)__storage_shadow_start__)[dwords];
-
-   if(crc == r_crc)
-   {
-      memcpy(__var_nv_start__,__storage_shadow_start__,__var_nv_size__);
-
-      result = 0;
-
-      state |= 0x80;
-   }
-
-   return result;
-}
-
-
-
 int  srv_nov_init(void)
 {
    int status;
    int ii;
+
+   fw_assert( NV_SHADOW_BUFFER_SIZE > (__var_nv_size__) / sizeof(uint32_t ) + 16);
+
+   memset(&nctx,0,sizeof(nctx));
 
 
    status = srv_nov_read_flash();
 
    if(status != 0)
    {
-      for(ii = 0; ii < default_functions_cnt;ii++)
+      for(ii = 0; ii < nctx.default_functions_cnt;ii++)
       {
-          default_functions[ii]();
+    	  nctx.default_functions[ii]();
       }
       srv_nov_init_default(1);
-
-
-      // Try to look for shadow      
-      if(srv_nov_store_shadow_read() == 0)
-      {
-          // Calibration text mode
-          state |= 0x40;
-      }
-      else if(srv_nov_store_shadow_binary_read() == 0)
-      {
-          // Binary full mode
-          state |= 0x80;
-      }
-   
    }
 
-   done = 1;
+   nctx.done = 1;
 
    return status;
 }
@@ -393,165 +297,14 @@ void  srv_nov_print_info(srv_printf_t pprintf)
     if(state& 0x08)(*pprintf)(1,"nov: first  copy recovery\r\n");
     if(state& 0x10)(*pprintf)(1,"nov: second copy faulty\r\n");
     if(state& 0x20)(*pprintf)(1,"nov: second copy recovery\r\n");
-    if(state& 0x40)(*pprintf)(1,"nov: shadow copy(text cal mode) recovery ( Ok:%d Faulty: %d)\r\n",cal_recovered,cal_faulty);
-    if(state& 0x80)(*pprintf)(1,"nov: shadow copy(binary mode) recovery\r\n");
 }
 
 
 
-
-
-#define SRV_FLASH_TIMEOUT 50000
-
-
-
-static int32_t ATTRIBUTE_IN_RAM srv_FLASH_WaitForLastOperation(uint32_t Timeout)
-{ 
-  srv_hwio_timestamp_t tickstart = 0U;
-
-  
-  /* Wait for the FLASH operation to complete by polling on BUSY flag to be reset.
-     Even if the FLASH operation fails, the BUSY flag will be reset and an error
-     flag will be set */
-
-  /* Get tick */
-  tickstart = srv_hwio_timestamp_ms();
-
-  while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) != RESET) 
-  { 
-      if((srv_hwio_timestamp_ms() - tickstart ) > Timeout)
-      {
-        return -1;
-      }     
-
-      if(idle_function != NULL)
-      {
-         idle_function(); 
-      }
-  }
-
-  /* Check FLASH End of Operation flag  */
-  if (__HAL_FLASH_GET_FLAG(FLASH_FLAG_EOP) != RESET)
-  {
-    /* Clear FLASH End of Operation pending bit */
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP);
-  }
-
-  if(__HAL_FLASH_GET_FLAG((FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR |FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR | FLASH_FLAG_RDERR)) != RESET)
-  {
-    return -1;
-  }
-
-  /* If there is no error flag set */
-  return 0;
-  
-} 
-
-static int32_t ATTRIBUTE_IN_RAM srv_FLASH_Unlock(void)
+static int ATTRIBUTE_IN_RAM srv_nov_store_copy(int copy_idx)
 {
-  uint32_t status = HAL_OK;
+#if 0
 
-  if(READ_BIT(FLASH->CR, FLASH_CR_LOCK) != RESET)
-  {
-    /* Authorize the FLASH Registers access */
-    WRITE_REG(FLASH->KEYR, FLASH_KEY1);
-    WRITE_REG(FLASH->KEYR, FLASH_KEY2);
-
-    /* Verify Flash is unlocked */
-    if(READ_BIT(FLASH->CR, FLASH_CR_LOCK) != RESET)
-    {
-      status = -1;
-    }
-  }
-  return status;
-}
-
-static void ATTRIBUTE_IN_RAM srv_FLASH_Lock(void)
-{
-  /* Set the LOCK Bit to lock the FLASH Registers access */
-  FLASH->CR |= FLASH_CR_LOCK;
-}
-
-
-
-static int32_t  ATTRIBUTE_IN_RAM srv_FLASH_Erase_Sector(uint32_t Sector, uint8_t VoltageRange)
-{
-  uint32_t tmp_psize = 0U;
-  int32_t  status;
-
-  /* Check the parameters */
-  assert_param(IS_FLASH_SECTOR(Sector));
-  assert_param(IS_VOLTAGERANGE(VoltageRange));
-  
-
-
-  if(VoltageRange == FLASH_VOLTAGE_RANGE_1)
-  {
-     tmp_psize = FLASH_PSIZE_BYTE;
-  }
-  else if(VoltageRange == FLASH_VOLTAGE_RANGE_2)
-  {
-    tmp_psize = FLASH_PSIZE_HALF_WORD;
-  }
-  else if(VoltageRange == FLASH_VOLTAGE_RANGE_3)
-  {
-    tmp_psize = FLASH_PSIZE_WORD;
-  }
-  else
-  {
-    tmp_psize = FLASH_PSIZE_DOUBLE_WORD;
-  }
-
-  /* Need to add offset of 4 when sector higher than FLASH_SECTOR_11 */
-  if(Sector > FLASH_SECTOR_11) 
-  {
-    Sector += 4U;
-  }
-  /* If the previous operation is completed, proceed to erase the sector */
-  CLEAR_BIT(FLASH->CR, FLASH_CR_PSIZE);
-  FLASH->CR |= tmp_psize;
-  CLEAR_BIT(FLASH->CR, FLASH_CR_SNB);
-  FLASH->CR |= FLASH_CR_SER | (Sector << FLASH_CR_SNB_Pos);
-  FLASH->CR |= FLASH_CR_STRT;
-
-
-  status = srv_FLASH_WaitForLastOperation((uint32_t)SRV_FLASH_TIMEOUT);
-
-  /* If the erase operation is completed, disable the SER and SNB Bits */
-  CLEAR_BIT(FLASH->CR, (FLASH_CR_SER | FLASH_CR_SNB));
-  FLASH_FlushCaches(); 
-
-  return status;
-
- 
-}
-
-static int32_t ATTRIBUTE_IN_RAM  srv_FLASH_Program_Word(uint32_t Address, uint32_t Data)
-{
-  
-  uint32_t status = HAL_OK;
-
-    
-  /* If the previous operation is completed, proceed to program the new data */
-  CLEAR_BIT(FLASH->CR, FLASH_CR_PSIZE);
-  FLASH->CR |= FLASH_PSIZE_WORD;
-  FLASH->CR |= FLASH_CR_PG;
-  *(__IO uint32_t*)Address = Data;
-
-  /* Wait for last operation to be completed */
-  status = srv_FLASH_WaitForLastOperation((uint32_t)SRV_FLASH_TIMEOUT);
-    
-  /* If the program operation is completed, disable the PG Bit */
-  FLASH->CR &= (~FLASH_CR_PG);  
-
-
-  return status;
-}
-
-
-static int ATTRIBUTE_IN_RAM srv_nov_store_copy(const char * copy,const char *src,uint32_t size,int destroy_nov)
-{
-     
     int                     ii;
     int                     sector = -1;    
     int                     result = 0;
@@ -559,17 +312,6 @@ static int ATTRIBUTE_IN_RAM srv_nov_store_copy(const char * copy,const char *src
     uint32_t                status;
 
     int                     dwords;
-
-
-
-   
-
-
-    if(destroyed )
-    {
-       // keep it this way and do not touch flash anymore
-       return 0;
-    }
 
 
 
@@ -667,7 +409,9 @@ static int ATTRIBUTE_IN_RAM srv_nov_store_copy(const char * copy,const char *src
     srv_wdg_kick();
 
     return result;
+#endif
 
+    return 0;
 }
 
 
@@ -680,280 +424,38 @@ static int ATTRIBUTE_IN_RAM srv_nov_store_copy(const char * copy,const char *src
     Note: Updates both copies - one after another    
 */
 
-int srv_nov_store(uint32_t destroy_mask)
+int srv_nov_store(void)
 {
     int result;
 
-    if(store_first ==  STORE_FIRST_COPY_1)
+    if(nctx.store_first ==  STORE_FIRST_COPY_1)
     {
-        result = srv_nov_store_copy(__storage1_start__,__var_nv_start__,__var_nv_size__,destroy_mask & 0x01);
+        result = srv_nov_store_copy(0);
 
         if(result == 0)
         {
-            result = srv_nov_store_copy(__storage2_start__,__var_nv_start__,__var_nv_size__,destroy_mask & 0x02);
+            result = srv_nov_store_copy(1);
         }
     }
     else
     {
-        result = srv_nov_store_copy(__storage2_start__,__var_nv_start__,__var_nv_size__,destroy_mask & 0x02);
+        result = srv_nov_store_copy(1);
 
         if(result == 0)
         {
-            result = srv_nov_store_copy(__storage1_start__,__var_nv_start__,__var_nv_size__,destroy_mask & 0x01);
+            result = srv_nov_store_copy(0);
         }
     }   
 
 
-    if(destroy_mask != 0)
-    {
-      destroyed = 1;
-    }
-
 
     return result;
 }
-
-
-int srv_nov_store_shadow_binary(void)
-{
-    return srv_nov_store_copy(__storage_shadow_start__,__var_nv_start__,__var_nv_size__,0);
-}
-
-
-int   srv_nov_store_shadow_init(void)
-{
-    int                     ii;
-    int                     sector = -1;    
-    int                     result = 0;
-    uint32_t                status;
-
-
-    
-     /*!
-    
-        \wdg  Watchdog kicks - Before each NOV storage operations - once, as erase may be 
-              relatively ( few miliseconds).
-                           
-     */
-     
-    srv_wdg_kick();
-
-    for(ii = 0; ii < DIM(flash_layout);ii++)
-    {
-        if( (uint32_t)cal_table_copy == flash_layout[ii].start )
-        {
-            sector = ii;
-            break;
-        }
-    }
-
-
-    if( sector < 0) 
-    {
-        // Not found 
-
-        return -1;
-    }
-
-    __disable_irq();
-
-    /*!
-            \tst  Variable 'nvCounter' Incremented each time NV storage contents is written to the flash.
-                                       Note that it is written for each NV copy, so each update will increment it by factor 2.        
-    */ 
-
-    srv_FLASH_Unlock();      
-
-    status = srv_FLASH_Erase_Sector(sector, VOLTAGE_RANGE_3);
-
-    if(status != 0)
-    {
-        result |= 2;
-    }
-  
-    srv_FLASH_Lock();
-
-    cal_table_offset = 0;
-        
-    __enable_irq();
-
-    /*!
-               
-          \wdg Watchdog kick - after NOVoperation                                                      
-    */
-     
-    srv_wdg_kick();
-
-    return result;
-
-}
-
-int   srv_nov_store_shadow_add(const uint32_t * words,uint32_t cnt)
-{
-    int                     ii;
-    int                     result;
-
-
-
-
-
-     /*!
-    
-        \wdg  Watchdog kicks - Before each NOV storage operations - once, as erase may be 
-              relatively ( few miliseconds).
-                           
-     */
-     
-    srv_wdg_kick();
-
-
-    __disable_irq();
-
-    /*!
-            \tst  Variable 'nvCounter' Incremented each time NV storage contents is written to the flash.
-                                       Note that it is written for each NV copy, so each update will increment it by factor 2.        
-    */ 
-
-    
-    srv_FLASH_Unlock();      
-          
-    /* Program flash data */
-    for(ii = 0; ii < cnt;ii++)
-    {
-        srv_FLASH_Program_Word(((uint32_t)cal_table_copy) + (cal_table_offset + ii)* sizeof(uint32_t), words[ii]);
-    }
-    srv_FLASH_Lock();
-
-    // Check data
-    result = memcmp(words,cal_table_copy + cal_table_offset* sizeof(uint32_t) ,cnt*sizeof(uint32_t));  
-
-    cal_table_offset += ii;
-      
-    __enable_irq();
-
-    /*!
-               
-          \wdg Watchdog kick - after NOVoperation                                                      
-    */
-     
-    srv_wdg_kick();
-
-    return result;
-}
-
-var_caltable_t * srv_nov_store_shadow_get(uint32_t ii)
-{
-    if(ii * sizeof(var_caltable_t) < cal_table_size)
-    {
-        return  &cal_table[ii];
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-int   srv_nov_store_shadow_read(void)
-{
-    uint8_t   line_buffer[64];
-    uint8_t   cc;
-    uint32_t  line_size; 
-    int       result = -1;
-    uint32_t  idx = 0;
-    int       ii;
-
-    const char * buffer = __storage_shadow_start__;
-
-
-    while(1)
-    {
-
-next_line:
-
-        line_size = 0;
-
-        for(ii = 0; ii < sizeof(line_buffer);ii++)
-        {
-           cc =  buffer[idx++];
-           line_buffer[line_size++] = cc;
-
-           switch(cc)
-           {
-              case '\n':
-              {
-                  line_buffer[line_size]  = 0;
-                  if(tsk_storage_process_cal(line_buffer,line_size) == 0)
-                  {
-                    cal_recovered++;
-                    result = 0;                   
-                  }
-                  else
-                  {
-                    cal_faulty++;
-                  }
-
-                  goto next_line;
-              }break;
-              
-
-              case 0xFF:
-              {
-                 // End of data
-                 goto no_more;
-              }break;
-
-              default:
-              {
-                 // Just eat the character 
-              }break;
-           }
-        }
-
-       // This means overrun error
-
-       goto no_more;
-    }
-
-
-no_more:
-
-
-    return result;
-}
-
 
 
 int   srv_nov_is_changed(void)
 {
-    return memcmp(__var_nv_start__,__storage1_start__,__var_nv_size__);    
-}
-
-
-void   srv_nov_dump_change(srv_printf_t pprintf)
-{
-    int ii;
-    const int32_t * storage_flash;
-    const int32_t * storage_mem;
-
-
-    for(ii = 0;ii < __var_nv_size__/sizeof(uint32_t);ii++)
-    {
-        storage_flash = &((const uint32_t*)__storage1_start__)[ii];
-        storage_mem   = &((const uint32_t*)__var_nv_start__)[ii];    
-
-        if(*storage_flash != *storage_mem)
-        {
-             (*pprintf)(1,"nov: change offset 0x%02x (0x%08x -> 0x%08x)\r\n",ii,*storage_flash,*storage_mem);   
-        }        
-    }  
-}
-
-
-
-//Unused on target platform
-void  srv_nov_set_idle_hook(void (*idle_fn)(void))
-{
-    idle_function = idle_fn;
+    return memcmp(__var_nv_start__,nctx.shadow_buf,__var_nv_size__);
 }
 
 
@@ -961,9 +463,9 @@ void  srv_nov_register(void * data, size_t size, void (*default_fn)(void))
 {
     if(default_fn != NULL)
     {
-      if(default_functions_cnt < DIM(default_functions))
+      if(nctx.default_functions_cnt < DIM(nctx.default_functions))
       {
-          default_functions[default_functions_cnt++] = default_fn;
+    	  nctx.default_functions[nctx.default_functions_cnt++] = default_fn;
       }
       else
       {
@@ -975,15 +477,10 @@ void  srv_nov_register(void * data, size_t size, void (*default_fn)(void))
 }
 
 
-//Unused on target platform
-void srv_nov_cal_register(const var_caltable_t * data, size_t size)
-{
-
-}
-
 
 //Unused on target platform
 void srv_nov_start()
 {
 
 }
+

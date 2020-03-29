@@ -2,7 +2,7 @@
 #include "services.h"
 
 
-#define UF(inst_, flag_)  ( (((inst_)->SR & (flag_)) == (flag_) )? SET : RESET)
+#define UF(inst_, flag_)  ( (((inst_)->CR1 & (flag_)) == (flag_) )? SET : RESET)
 
 typedef struct
 {    
@@ -152,10 +152,10 @@ void UARTx_485_IRQHandler(uint32_t id,srv_serial_485_ctx_t  * pctx)
   uint8_t          cc;
   portBASE_TYPE    hpt_woken1 = pdFALSE;  
   
-  if( UF(pctx->usart,USART_SR_RXNE)  != RESET)
+  while( UF(pctx->usart,UART_FLAG_RXNE)  != RESET)
   {
     /* Read one byte from the receive data register */
-    cc          = (uint8_t )(pctx->usart->DR & 0x00FF);
+    cc          = (uint8_t )(pctx->usart->RDR & 0x00FF);
     
     if(pctx->rcv_char != NULL)
     {
@@ -169,7 +169,7 @@ void UARTx_485_IRQHandler(uint32_t id,srv_serial_485_ctx_t  * pctx)
     /* Write one byte to the transmit data register */
     if(pctx->TxHead != pctx->TxTail)
     {
-      pctx->usart->DR  =  pctx->TxBuffer[pctx->TxTail] & 0x00FF;
+      pctx->usart->TDR  =  pctx->TxBuffer[pctx->TxTail] & 0x00FF;
       pctx->TxTail = ( pctx->TxTail + 1) % DIM(pctx->TxBuffer);
     }
     else
@@ -313,7 +313,7 @@ void    srv_serial_485_puts(uint32_t port_id,const char * buffer,int length)
     // Send the string - in blocking mode
     while(1)
     {
-        while(UF(ctx->usart,USART_SR_TXE) != SET)
+        while(UF(ctx->usart,UART_FLAG_TXE) != SET)
         {
           ;
         }
@@ -323,7 +323,7 @@ void    srv_serial_485_puts(uint32_t port_id,const char * buffer,int length)
           break;
         }
 
-        ctx->usart->DR = (*buffer & (uint8_t)0xFF);
+        ctx->usart->TDR = (*buffer & (uint8_t)0xFF);
         buffer++;
         length--;
 

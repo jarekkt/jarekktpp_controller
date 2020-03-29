@@ -9,8 +9,8 @@
 #include <math.h>
 
 #ifndef SIMULATION
-#include "stm32f4xx.h"
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx.h"
+#include "stm32h7xx_hal.h"
 #endif
 
 #include "FreeRTOS.h"

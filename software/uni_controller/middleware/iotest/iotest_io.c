@@ -36,22 +36,7 @@ static void iotest_io_special(uint32_t io_special)
     }
 
 
-    if( (io_special & 0x02) != 0)
-    {
-  	  // Kill storage
-      tsk_storage_kill();
-    }
 
-    if( (io_special & 0x04) != 0)
-    {
-       tsk_storage_shadow(STORAGE_MODE_TEXT);
-    }
-
-
-    if( (io_special & 0x08) != 0)
-    {
-       tsk_storage_shadow(STORAGE_MODE_BINARY);
-    }
 
 
     if( (io_special & 0x10) != 0)

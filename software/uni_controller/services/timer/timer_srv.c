@@ -74,7 +74,7 @@ void  ATTRIBUTE_IN_RAM   srv_hwio_process_timers_when_irq_disable(void)
 
 void srv_timer_once(void)
 {
-  srv_nov_set_idle_hook(srv_hwio_process_timers_when_irq_disable);
+
 }
 
 

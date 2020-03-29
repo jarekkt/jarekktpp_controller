@@ -28,8 +28,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -65,38 +64,20 @@ void Error_Handler(void);
 #define ADDR2_GPIO_Port GPIOE
 #define ADDR3_Pin GPIO_PIN_4
 #define ADDR3_GPIO_Port GPIOE
-#define OUT5_PWM_Pin GPIO_PIN_5
-#define OUT5_PWM_GPIO_Port GPIOE
 #define OUT3_Pin GPIO_PIN_0
 #define OUT3_GPIO_Port GPIOC
 #define OUT4_Pin GPIO_PIN_1
 #define OUT4_GPIO_Port GPIOC
-#define ADC_S1_Pin GPIO_PIN_2
-#define ADC_S1_GPIO_Port GPIOC
-#define ADC_S2_Pin GPIO_PIN_3
-#define ADC_S2_GPIO_Port GPIOC
 #define IN1_Pin GPIO_PIN_0
 #define IN1_GPIO_Port GPIOA
 #define IN2_Pin GPIO_PIN_1
 #define IN2_GPIO_Port GPIOA
-#define IN3_Pin GPIO_PIN_2
-#define IN3_GPIO_Port GPIOA
 #define IN4_Pin GPIO_PIN_3
 #define IN4_GPIO_Port GPIOA
-#define ADC_TANK1_Pin GPIO_PIN_4
-#define ADC_TANK1_GPIO_Port GPIOA
-#define ADC_TANK2_Pin GPIO_PIN_5
-#define ADC_TANK2_GPIO_Port GPIOA
-#define ADC_TANK3_Pin GPIO_PIN_6
-#define ADC_TANK3_GPIO_Port GPIOA
-#define ADC_TANK4_Pin GPIO_PIN_7
-#define ADC_TANK4_GPIO_Port GPIOA
-#define ADC_S3_Pin GPIO_PIN_4
-#define ADC_S3_GPIO_Port GPIOC
+#define OUT5_PWM_Pin GPIO_PIN_6
+#define OUT5_PWM_GPIO_Port GPIOA
 #define OUT1_Pin GPIO_PIN_0
 #define OUT1_GPIO_Port GPIOB
-#define OUT2_Pin GPIO_PIN_1
-#define OUT2_GPIO_Port GPIOB
 #define LED_Pin GPIO_PIN_10
 #define LED_GPIO_Port GPIOE
 #define REVISION_S1_Pin GPIO_PIN_14
