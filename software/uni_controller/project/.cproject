@@ -60,8 +60,8 @@
 								</option>
 								<option id="com.atollic.truestudio.gcc.misc.otherflags.705755204" name="Other options" superClass="com.atollic.truestudio.gcc.misc.otherflags" useByScannerDiscovery="false" value="-Wno-pointer-sign" valueType="string"/>
 								<option id="com.atollic.truestudio.common_options.target.interwork.1223957760" name="Mix ARM/Thumb" superClass="com.atollic.truestudio.common_options.target.interwork"/>
-								<option id="com.atollic.truestudio.gcc.optimization.prep_garbage.1941509343" superClass="com.atollic.truestudio.gcc.optimization.prep_garbage" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="com.atollic.truestudio.gcc.optimization.prep_data.174379627" superClass="com.atollic.truestudio.gcc.optimization.prep_data" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.atollic.truestudio.gcc.optimization.prep_garbage.1941509343" name="Prepare dead code removal " superClass="com.atollic.truestudio.gcc.optimization.prep_garbage" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.atollic.truestudio.gcc.optimization.prep_data.174379627" name="Prepare dead data removal" superClass="com.atollic.truestudio.gcc.optimization.prep_data" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<inputType id="com.atollic.truestudio.gcc.input.1889523844" superClass="com.atollic.truestudio.gcc.input"/>
 							</tool>
 							<tool id="com.atollic.truestudio.exe.debug.toolchain.ld.479100136" name="C Linker" superClass="com.atollic.truestudio.exe.debug.toolchain.ld">
@@ -101,8 +101,11 @@
 							<tool id="com.atollic.truestudio.exe.debug.toolchain.secoutput.1495115621" name="Other" superClass="com.atollic.truestudio.exe.debug.toolchain.secoutput"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.atollic.truestudio.exe.debug.2003444537.19522729" name="heap_3.c" rcbsApplicability="disable" resourcePath="Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_3.c" toolsToInvoke="com.atollic.truestudio.exe.debug.toolchain.gcc.1636176948.1119528303">
+						<tool id="com.atollic.truestudio.exe.debug.toolchain.gcc.1636176948.1119528303" name="C Compiler" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.1636176948"/>
+					</fileInfo>
 					<sourceEntries>
-						<entry excluding="Implementation/stm32cubemx/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_utils.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_3.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_5.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_2.c|Implementation/stm32cubemx/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_utils.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -126,7 +129,7 @@
 							<option id="com.atollic.truestudio.toolchain_options.mcu.1972685431" name="Microcontroller" superClass="com.atollic.truestudio.toolchain_options.mcu" value="STM32H750VB" valueType="string"/>
 							<option id="com.atollic.truestudio.toolchain_options.vendor.416263958" name="Vendor name" superClass="com.atollic.truestudio.toolchain_options.vendor" value="STMicroelectronics" valueType="string"/>
 							<targetPlatform archList="all" id="com.atollic.truestudio.exe.release.toolchain.platform.1401316319" isAbstract="false" name="release platform" superClass="com.atollic.truestudio.exe.release.toolchain.platform"/>
-							<builder buildPath="${workspace_loc:/printer_base}/Release" customBuilderProperties="toolChainpathString=C:\\Program Files (x86)\\Atollic\\TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|toolChainpathType=1|com.atollic.truestudio.common_options.target.vendor=STMicroelectronics|com.atollic.truestudio.common_options.target.mcu=STM32H750VB|" id="com.atollic.truestudio.mbs.builder1.11134242" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1"/>
+							<builder buildPath="${workspace_loc:/printer_base}/Release" customBuilderProperties="toolChainpathString=C:\\Program Files (x86)\\Atollic\\TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|com.atollic.truestudio.common_options.target.mcu=STM32H750VB|toolChainpathType=1|com.atollic.truestudio.common_options.target.vendor=STMicroelectronics|" id="com.atollic.truestudio.mbs.builder1.11134242" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1"/>
 							<tool id="com.atollic.truestudio.exe.release.toolchain.as.595638591" name="Assembler" superClass="com.atollic.truestudio.exe.release.toolchain.as">
 								<option id="com.atollic.truestudio.common_options.target.endianess.1423835530" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.802853627" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" value="STM32H750VB" valueType="enumerated"/>
@@ -137,7 +140,7 @@
 									<listOptionValue builtIn="false" value="STM32F42_43xxx"/>
 									<listOptionValue builtIn="false" value="USE_STDPERIPH_DRIVER"/>
 								</option>
-								<option id="com.atollic.truestudio.as.general.incpath.1791348480" name="Include path" superClass="com.atollic.truestudio.as.general.incpath" valueType="includePath"/>
+								<option id="com.atollic.truestudio.as.general.incpath.1791348480" name="Include path" superClass="com.atollic.truestudio.as.general.incpath"/>
 								<option id="com.atollic.truestudio.common_options.target.interwork.287876564" name="Mix ARM/Thumb" superClass="com.atollic.truestudio.common_options.target.interwork"/>
 								<inputType id="com.atollic.truestudio.as.input.1512532034" name="Input" superClass="com.atollic.truestudio.as.input"/>
 							</tool>
@@ -219,7 +222,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Implementation/stm32cubemx/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_utils.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_3.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_5.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_2.c|Implementation/stm32cubemx/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_msp_template.c|Implementation/stm32cubemx/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_delayblock.c|Implementation/stm32cubemx/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_utils.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

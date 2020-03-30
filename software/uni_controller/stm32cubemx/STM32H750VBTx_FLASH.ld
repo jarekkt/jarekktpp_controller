@@ -149,7 +149,7 @@ SECTIONS
     *(.data*)          /* .data* sections */
     __var_nv_start__ = .;
     *(.var_nv)
-	__var_nv_end__ = .;
+    __var_nv_end__ = .;
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
   } >DTCMRAM AT> FLASH
