@@ -66,7 +66,7 @@ void tsk_storage_once(void)
   vSemaphoreCreateBinary(sctx.wait_sema);        
   sctx.mutex_sema = xSemaphoreCreateMutex();
 
-  xTaskCreate( tsk_storage_task, ( signed char * ) "Store", 8* configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
+  xTaskCreate( tsk_storage_task, (char * ) "Store", 8* configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
 }
 
 

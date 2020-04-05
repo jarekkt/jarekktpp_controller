@@ -60,6 +60,16 @@
 			<locationURI>PARENT-1-PROJECT_LOC/engine/engine.c</locationURI>
 		</link>
 		<link>
+			<name>Implementation/engine/gcode</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/motion</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Implementation/engine/version</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -235,6 +245,36 @@
 			<locationURI>PARENT-1-PROJECT_LOC/system/system.c</locationURI>
 		</link>
 		<link>
+			<name>Implementation/engine/gcode/gcode_engine.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/gcode/gcode_engine.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/gcode/gcode_engine.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/gcode/gcode_engine.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/gcode/gcode_parser.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/gcode/gcode_parser.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/gcode/gcode_parser.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/gcode/gcode_parser.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/motion/motion_engine.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/motion/motion_engine.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/motion/motion_engine.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/motion/motion_engine.h</locationURI>
+		</link>
+		<link>
 			<name>Implementation/engine/version/describe.cmd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/engine/version/describe.cmd</locationURI>
@@ -288,6 +328,26 @@
 			<name>Implementation/middleware/burst/burst_mwr.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/middleware/burst/burst_mwr.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/middleware/burst/burst_printf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/middleware/burst/burst_printf.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/middleware/burst/burst_printf.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/middleware/burst/burst_printf.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/middleware/burst/burst_rcv.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/middleware/burst/burst_rcv.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/middleware/burst/burst_rcv.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/middleware/burst/burst_rcv.h</locationURI>
 		</link>
 		<link>
 			<name>Implementation/middleware/cancomm/cancomm_mwr.c</name>

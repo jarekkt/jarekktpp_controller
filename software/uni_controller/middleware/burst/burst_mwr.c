@@ -14,57 +14,13 @@
 
 
 
-#define PRINTF_BUFFER_LENGTH    1024
-#define RCV_FRAME_LENGTH		 128
-
-
 #define var_table          ((var_ptable_t*)__sermon_start__)
 #define var_table_size     ((uint32_t)(__sermon_end__ - __sermon_start__))
 
 
 
-/*!
-    Burst module context data
-*/
 
 
-typedef struct
-{
-    xSemaphoreHandle  	x_mutex;
-    char     		  	print_buffer[PRINTF_BUFFER_LENGTH];
-
-
-}burst_task_ctx_t;
-
-typedef struct
-{
-    uint32_t printf_mask;
-}burst_nv_t;
-
-burst_task_ctx_t    brctx;
-burst_nv_t          brctx_nv VAR_NV_ATTR;
-
-
-
-const var_ptable_t   burst_var_ptable[] SERMON_ATTR =  
-{
-  { "printf_mask",               &brctx_nv.printf_mask                  ,E_VA_UINT_FREE    }
-};
-
-
-
-/*!
-    \brief  Empty storage init function for burst module    (nv vars)                          
-                                    
-*/
-
-void mwr_burst_default_init(void)
-{
-   memset(&brctx_nv,0,sizeof(brctx_nv));
-
-   brctx_nv.printf_mask = 0xFFFFFFFF;
-
-}
 /*!
     \brief  Init function for burst module                              
                                     
@@ -72,12 +28,9 @@ void mwr_burst_default_init(void)
 
 void mwr_burst_init(void)
 {
+	burst_printf_init();
 	burst_mux_init();
 
-    memset(&brctx,0,sizeof(brctx));
-
-    srv_sermon_register(burst_var_ptable,sizeof(burst_var_ptable));
-    srv_nov_register(&brctx_nv,sizeof(brctx_nv),mwr_burst_default_init);
 }
 
 /*!
@@ -87,9 +40,8 @@ void mwr_burst_init(void)
 
 void mwr_burst_once(void)
 {
+   burst_printf_once();
    burst_mux_once();
-
-   brctx.x_mutex = xSemaphoreCreateMutex();
 
 }
 
@@ -249,41 +201,4 @@ int burst_process_variable(const char* var_name, uint32_t var_name_len,const cha
 
 
 
-
-
-
-
-/*!
-    \brief  Standard library printf() replacement function. Message will be sent to serial port
-
-    \param [in] format Same as printf
-
-     Note - This call is blocking until whole message is sent
-            *DO NOT* use from interrupts. 
-            
-*/
-
-void burst_log_printf(uint32_t level_mask,const char  * format, ...)
-{
-     
-        va_list  msg;
-        int      length;
-
-
-        xSemaphoreTake(brctx.x_mutex,portMAX_DELAY);
-
-        va_start(msg, format);
- 
-        // In production mode we disable all debug messages
-        if( (brctx_nv.printf_mask & level_mask) != 0 )
-        {                     
-          length = vsnprintf(brctx.print_buffer,sizeof(brctx.print_buffer)-3,format, msg);
-          srv_serial_send(SRV_SERIAL_DEBUG,brctx.print_buffer,length);
-        }
-
-        va_end(msg);
-
-        xSemaphoreGive(brctx.x_mutex);
-
-}
 

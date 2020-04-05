@@ -8,42 +8,13 @@
 #include "system.h"
 #include "services.h"
 #include "middleware.h"
+#include "burst_mux.h"
 
-#include "version.h"
-
-
-#define BURST_MUX_TIMEOUT 50
-
-typedef enum
-{
-	CH_MASTER,
-	CH_SLAVE,
-	CH_DEBUG
-}ch_type_e;
 
 
 typedef struct
 {
-
-    uint8_t  	RxBuffer[128];
-    uint32_t 	Timestamp;
-
-    uint32_t 	timeout;
-
-    int      	RxCnt;
-    int      	RxMsgCounter;
-    int      	RxMsgOk;
-
-    ch_type_e 	type;
-    uint32_t    serial_id;
-
-}burst_serial_data_t;
-
-typedef struct
-{
-	burst_serial_data_t  ch[3];
-
-	xSemaphoreHandle    sema_recv;
+	uint32_t			address;
 }burst_mux_t;
 
 const char        hexd[] = "0123456789ABCDEF";
@@ -57,113 +28,49 @@ void burst_mux_init()
 {
 	memset(&bmux,0,sizeof(bmux));
 
+	// Selects address pair - for RS485 channels
+	bmux.address  = srv_gpio_get_address() << 1;
 }
 
 
-static void burst_mux_cc(uint8_t cc,uint32_t idx,portBASE_TYPE * woken)
+
+
+
+
+
+
+
+
+void burst_mux_serial_process(uint32_t idx,char * buffer,uint32_t len)
 {
-   uint32_t    				timestamp;
-   burst_serial_data_t	  * serial_ch;
+	burst_rcv_ctx_t		rcv_ctx;
 
-   timestamp   = HAL_GetTick();
-   serial_ch   = &bmux.ch[idx];
+	buffer[len] = 0;
 
-   if(serial_ch->RxMsgOk == 0)
-   {
+	char * fstart;
+	char * fend;
 
-      /*!
-          \req    <b>Debug message character timeout</b>
-                  There is 2seconds inter-charater message timeout.
-                  This should allow entering the message manually, but should prevent TX signal distrubances from forming
-                  valid message over time.
+	rcv_ctx.channel	= idx;
 
-      */
-      if( (timestamp - serial_ch->Timestamp) > serial_ch->timeout )
-      {
-          serial_ch->RxCnt  = 0;
-      }
+	fstart = strch(buffer,'<');
+	fend = strch(buffer,'>');
 
-      serial_ch->Timestamp = timestamp;
-
-
-      if(cc == '<')
-      {
-          serial_ch->RxCnt = 0;
-          serial_ch->RxBuffer[serial_ch->RxCnt++] = cc;
-      }
-      else
-      {
-         if(serial_ch->RxCnt < sizeof(serial_ch->RxBuffer))
-         {
-              serial_ch->RxBuffer[serial_ch->RxCnt++] = cc;
-
-              if(cc == '>')
-              {
-                  serial_ch->RxMsgCounter++;
-                  serial_ch->RxMsgOk = 1;
-
-                  xSemaphoreGiveFromISR(bmux.sema_recv,woken);
-              }
-         }
-         else
-         {
-              serial_ch->RxCnt = 0;
-         }
-      }
-   }
-}
-
-
-static void burst_mux_rcv_cc(uint32_t portId,uint8_t cc,portBASE_TYPE * woken)
-{
-	burst_mux_cc(cc,0,woken);
-}
-
-static void burst_mux_rcv_cc_pc(uint32_t portId,uint8_t cc,portBASE_TYPE * woken)
-{
-	burst_mux_cc(cc,1,woken);
-}
-
-static void burst_mux_rcv_cc_plc(uint32_t portId,uint8_t cc,portBASE_TYPE * woken)
-{
-	burst_mux_cc(cc,2,woken);
-}
-
-
-void burst_mux_once()
-{
-	vSemaphoreCreateBinary(bmux.sema_recv);
-
-	bmux.ch[0].timeout 		= 2000;
-	bmux.ch[0].type    		= CH_DEBUG;
-	bmux.ch[0].serial_id	= SRV_SERIAL_DEBUG;
-	srv_serial_rcv_callback(SRV_SERIAL_DEBUG,burst_mux_rcv_cc);
-
-	bmux.ch[1].timeout 		= 10000;
-	bmux.ch[1].type    		= CH_SLAVE;
-	bmux.ch[1].serial_id	= SRV_SERIAL_PC_CHANNEL;
-	srv_serial_485_rcv_callback(SRV_SERIAL_PC_CHANNEL,burst_mux_rcv_cc_pc);
-	srv_serial_485_enable(SRV_SERIAL_PC_CHANNEL,1);
-
-	bmux.ch[2].timeout 		= 10000;
-	if(srv_gpio_get_address() == 0)
+	if( (fstart != NULL) && (fend != NULL))
 	{
-		bmux.ch[2].type    		= CH_MASTER;
+		// Got standard encapsulated frame
+		rcv_ctx.frame_format = RCV_FRAME_ENCAPSULATED;
 	}
 	else
 	{
-		bmux.ch[2].type    		= CH_SLAVE;
+		// Try for pure gcode - direct message
+		rcv_ctx.frame_format = RCV_FRAME_DIRECT;
+		gcode_engine_command(buffer,&rcv_ctx);
 	}
-	bmux.ch[2].serial_id	= SRV_SERIAL_PLC_CHANNEL;
-	srv_serial_485_rcv_callback(SRV_SERIAL_PLC_CHANNEL,burst_mux_rcv_cc_plc);
-	srv_serial_485_enable(SRV_SERIAL_PLC_CHANNEL,1);
 
-
-
-
-
-	xTaskCreate( burst_mux_task, "Burst", 6 * configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY   + 1, NULL );
 }
+
+
+
 
 
 /*!
@@ -331,7 +238,7 @@ int burst_mux_execute_var(uint32_t ch_idx,char * command, int length)
 			msg_address = strtol(var_name_addr,NULL,16);
 			if(msg_address != our_address)
 			{
-				// Not for usb
+				// Not for us
 				return 0;
 			}
 
@@ -377,69 +284,3 @@ int burst_mux_execute_var(uint32_t ch_idx,char * command, int length)
 }
 
 
-static void burst_mux_serial_process(uint32_t idx)
-{
-	uint32_t execute_store;
-
-	if(bmux.ch[idx].RxCnt >= 6)
-	{
-        execute_store = burst_mux_execute_var(idx,&bmux.ch[idx].RxBuffer[1],bmux.ch[idx].RxCnt-2);
-
-		if((bmux.ch[idx].type == CH_DEBUG) && (execute_store!=0))
-		{
-			tsk_storage_activate();
-		}
-	}
-
-}
-
-
-static void burst_mux_serial_rcv(void)
-{
-    uint32_t cnt= 0;
-    uint32_t ii;
-
-
-    xSemaphoreTake(bmux.sema_recv,BURST_MUX_TIMEOUT/portTICK_RATE_MS);
-
-    do
-    {
-		cnt = 0;
-		for(ii=0;ii<3;ii++)
-		{
-			if(bmux.ch[ii].RxMsgOk != 0)
-			{
-				burst_mux_serial_process(ii);
-				cnt++;
-			}
-			bmux.ch[ii].RxCnt 	= 0;
-			bmux.ch[ii].RxMsgOk = 0;
-		}
-    }while (cnt != 0);
-
-}
-/*!
-        \brief Burst task function. Sends periodically burst frames ( if enabled by PC message).
-
-*/
-
-static void burst_mux_task(void * params)
-{
-    while(1)
-    {
-
-    	burst_mux_serial_rcv();
-
-           /*!
-               \sto  Storage activation after debug port serial command operation.
-                     There is no writing when variable was only read ( only variable write commands trigger storage by default).
-                     Note that this may trigger NOV update even when serial command actually
-                     changed nothing, but there were pending writes to NOV ( waiting for its 7 minute period)
-
-           */
-
-
-
-        fw_stack_check();
-    }
-}

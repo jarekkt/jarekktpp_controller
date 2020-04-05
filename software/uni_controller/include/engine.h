@@ -6,6 +6,9 @@
 
 #include "system.h"
 
+#include "engine/gcode/gcode_engine.h"
+#include "engine/motion/motion_engine.h"
+
   
 void engine_init(void);
 void engine_once(void);
