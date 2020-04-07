@@ -39,7 +39,7 @@ nov_ctx_t		nctx;
 
 static int srv_nov_store_copy(int idx);
 
-
+#if 0
 /*! Table of CRC values for highorder byte */
 static unsigned char auchCRCHi[] = {
 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81,
@@ -83,7 +83,7 @@ static char auchCRCLo[] = {
 0x44, 0x84, 0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42, 0x43, 0x83, 0x41, 0x81, 0x80,
 0x40
 } ;
-
+#endif
 
 typedef struct
 {
@@ -108,6 +108,7 @@ static   int     state = 0;
     
 */
 
+#if 0
 static uint16_t crc16(const unsigned char *puchMsg,uint16_t usDataLen)
 {
     uint8_t uchCRCHi = 0xFF ; /* high byte of CRC initialized */
@@ -122,7 +123,7 @@ static uint16_t crc16(const unsigned char *puchMsg,uint16_t usDataLen)
     }
     return (uchCRCHi << 8 | uchCRCLo) ;
 }
-
+#endif
 
 
 
@@ -155,6 +156,7 @@ static uint16_t crc16(const unsigned char *puchMsg,uint16_t usDataLen)
 
 int  srv_nov_read_flash(void)
 {
+
     uint8_t              result = 1;
 #if 0
     uint32_t             crc;
@@ -164,7 +166,7 @@ int  srv_nov_read_flash(void)
 
 
      
-     
+
     dwords = ( __var_nv_size__+ sizeof(uint32_t) -1)/sizeof(uint32_t);
     
     state = 0;

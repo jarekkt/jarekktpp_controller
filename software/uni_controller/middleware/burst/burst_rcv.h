@@ -31,11 +31,14 @@ typedef struct
 {
 	ch_idx_e 		channel;
 	rcv_frame_e		frame_format;
+	uint32_t		address;
 }burst_rcv_ctx_t;
 
 void burst_rcv_init();
 void burst_rcv_once();
 void burst_rcv_send_response(const burst_rcv_ctx_t * rcv_ctx,char * response, int length);
 
+void burst_rcv_usb_rx(const char * msg,uint32_t msg_len);
+ void burst_rcv_usb_tx(const char * msg,uint32_t msg_len);
 
 #endif //BURST_RCV_H

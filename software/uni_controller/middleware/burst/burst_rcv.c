@@ -18,7 +18,7 @@
 
 typedef struct
 {
-    uint8_t  	RxBuffer[512];
+    char    	RxBuffer[512];
     int      	RxCnt;
     int      	RxMsgCounter;
     int      	RxMsgOk;
@@ -51,10 +51,8 @@ void burst_rcv_init()
 
 static void burst_rcv_cc(uint8_t cc,ch_idx_e idx,portBASE_TYPE * woken)
 {
-   uint32_t    				timestamp;
    burst_serial_data_t	  * serial_ch;
 
-   timestamp   = HAL_GetTick();
    serial_ch   = &brcv.ch[idx];
 
    if(serial_ch->RxMsgOk == 0)
@@ -92,7 +90,7 @@ void burst_rcv_usb_rx(const char * msg,uint32_t msg_len)
         serial_ch->RxMsgOk = 1;
 
         // TODO - check if really interrupt context
-		xSemaphoreGiveFromISR(brcv.sema_recv,woken);
+		xSemaphoreGiveFromISR(brcv.sema_recv,NULL);
 	}
 }
 
@@ -102,40 +100,40 @@ static void burst_rcv_cc_debug(uint32_t portId,uint8_t cc,portBASE_TYPE * woken)
 	burst_rcv_cc(cc,CH_DEBUG,woken);
 }
 
-static void burst_mux_rcv_cc_rs485_1(uint32_t portId,uint8_t cc,portBASE_TYPE * woken)
+static void burst_rcv_cc_rs485_1(uint32_t portId,uint8_t cc,portBASE_TYPE * woken)
 {
 	burst_rcv_cc(cc,CH_RS485_1,woken);
 }
 
-static void burst_mux_rcv_cc_rs485_2(uint32_t portId,uint8_t cc,portBASE_TYPE * woken)
+static void burst_rcv_cc_rs485_2(uint32_t portId,uint8_t cc,portBASE_TYPE * woken)
 {
 	burst_rcv_cc(cc,CH_RS485_2,woken);
 }
 
 
-void burst_mux_once()
+void burst_rcv_once()
 {
 	vSemaphoreCreateBinary(brcv.sema_recv);
 
 	// CH_DEBUG
 	brcv.ch[CH_DEBUG].serial_id	= SRV_SERIAL_DEBUG;
-	srv_serial_rcv_callback(SRV_SERIAL_DEBUG,burst_mux_rcv_cc_debug);
+	srv_serial_rcv_callback(SRV_SERIAL_DEBUG,burst_rcv_cc_debug);
 
 	// CH_RS485_1
 	brcv.ch[CH_RS485_1].serial_id	= SRV_SERIAL_RS485_1;
-	srv_serial_485_rcv_callback(SRV_SERIAL_PC_CHANNEL,burst_mux_rcv_cc_rs485_1);
-	srv_serial_485_enable(SRV_SERIAL_PC_CHANNEL,1);
+	srv_serial_485_rcv_callback(SRV_SERIAL_RS485_1,burst_rcv_cc_rs485_1);
+	srv_serial_485_enable(SRV_SERIAL_RS485_1,1);
 
 	// CH_RS485_2
 	brcv.ch[CH_RS485_2].serial_id	= SRV_SERIAL_RS485_2;
-	srv_serial_485_rcv_callback(SRV_SERIAL_PLC_CHANNEL,burst_mux_rcv_cc_rs485_2);
-	srv_serial_485_enable(SRV_SERIAL_PLC_CHANNEL,1);
+	srv_serial_485_rcv_callback(SRV_SERIAL_RS485_2,burst_rcv_cc_rs485_2);
+	srv_serial_485_enable(SRV_SERIAL_RS485_2,1);
 
 	// CH_USB
 	// No configuration needed
 	brcv.ch[CH_USB].serial_id 		= -1;
 
-	xTaskCreate( burst_mux_task, "Burst", 6 * configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY   + 1, NULL );
+	xTaskCreate( burst_rcv_task, "Burst", 6 * configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY   + 1, NULL );
 }
 
 
@@ -162,6 +160,10 @@ void burst_rcv_send_response(const burst_rcv_ctx_t * rcv_ctx,char * response, in
 			{
 				srv_serial_send(brcv.ch[rcv_ctx->channel].serial_id,response,length);
 			}break;
+
+			default:
+			{
+			}break;
     }
 
 }
@@ -171,9 +173,9 @@ static void burst_rcv_serial_process(ch_idx_e idx)
 {
 	uint32_t execute_store;
 
-    execute_store = burst_rcv_execute_query(idx,&brcv.ch[idx].RxBuffer,brcv.ch[idx].RxCnt);
+    execute_store = burst_mux_serial_process(idx,brcv.ch[idx].RxBuffer,brcv.ch[idx].RxCnt);
 
-    if( (brcv.ch[idx].type == CH_DEBUG) && (execute_store!=0) )
+    if( (idx == CH_DEBUG) && (execute_store!=0) )
 	{
 		tsk_storage_activate();
 	}
@@ -183,7 +185,7 @@ static void burst_rcv_serial_process(ch_idx_e idx)
 static void burst_rcv_serial_rcv(void)
 {
     uint32_t cnt= 0;
-    uint32_t ii;
+    ch_idx_e idx;
 
 
     xSemaphoreTake(brcv.sema_recv,BURST_MUX_TIMEOUT/portTICK_RATE_MS);
@@ -191,15 +193,15 @@ static void burst_rcv_serial_rcv(void)
     do
     {
 		cnt = 0;
-		for(ii=0;ii < CH_CNT;ii++)
+		for(idx=0;idx < CH_CNT;idx++)
 		{
-			if(brcv.ch[ii].RxMsgOk != 0)
+			if(brcv.ch[idx].RxMsgOk != 0)
 			{
-				burst_mux_serial_process(ii,brcv.ch[ii].RxBuffer,brcv.ch[ii].RxCnt);
+				burst_rcv_serial_process(idx);
 				cnt++;
 			}
-			brcv.ch[ii].RxCnt 	= 0;
-			brcv.ch[ii].RxMsgOk = 0;
+			brcv.ch[idx].RxCnt 	= 0;
+			brcv.ch[idx].RxMsgOk = 0;
 		}
     }while (cnt != 0);
 
@@ -220,3 +222,5 @@ static void burst_rcv_task(void * params)
         fw_stack_check();
     }
 }
+
+

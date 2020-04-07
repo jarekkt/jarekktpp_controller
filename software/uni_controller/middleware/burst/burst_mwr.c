@@ -30,6 +30,7 @@ void mwr_burst_init(void)
 {
 	burst_printf_init();
 	burst_mux_init();
+	burst_rcv_init();
 
 }
 
@@ -42,11 +43,12 @@ void mwr_burst_once(void)
 {
    burst_printf_once();
    burst_mux_once();
+   burst_rcv_once();
 
 }
 
 
-int burst_process_variable(const char* var_name, uint32_t var_name_len,const char * var_value,char * resp_buffer,uint32_t resp_buffer_len,uint32_t * execute_store)
+int burst_process_variable(const char * var_name, const char * var_value,char * resp_buffer,uint32_t resp_buffer_len,int32_t * execute_store)
 {
   int               ii;
   int               resp_len;
@@ -63,7 +65,7 @@ int burst_process_variable(const char* var_name, uint32_t var_name_len,const cha
 
   for(ii = 0; ii < (int)var_table_dim;ii++)
   {
-      if(memcmp((void*)var_table[ii].name,(void*)var_name,var_name_len) == 0)
+      if(strcmp((char*)var_table[ii].name,(char*)var_name) == 0)
       {
           if(var_value != NULL)
           {
@@ -165,9 +167,9 @@ int burst_process_variable(const char* var_name, uint32_t var_name_len,const cha
   if(resp_len == -1)
   {
      // Some special cases
-     if(var_name_len == 1)
+     if(strlen(var_name) == 1)
      {
-        switch(*var_name)
+        switch(var_name[0])
         {
             case 'H':
             {

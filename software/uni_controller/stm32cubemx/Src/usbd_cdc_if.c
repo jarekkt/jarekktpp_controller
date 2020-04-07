@@ -266,9 +266,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
-  extern void burst_rcv_usb_rx(const char * msg,uint32_msg);
+  extern void burst_rcv_usb_rx(const char * msg,uint32_t msg_len);
 
-  burst_rcv_usb_rx(Buf,*Len);
+  burst_rcv_usb_rx((char*)Buf,*Len);
 
   return (USBD_OK);
   /* USER CODE END 6 */
@@ -300,9 +300,9 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
-void burst_rcv_usb_tx(const char * msg,uint32_t msg_len)
+void burst_rcv_usb_tx(char * msg,uint32_t msg_len)
 {
-	CDC_Transmit_FS(msg, (uint16_t)msg_len);
+	CDC_Transmit_FS((uint8_t*)msg, (uint16_t)msg_len);
 }
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 

@@ -41,12 +41,12 @@ static void iotest_io_special(uint32_t io_special)
 
     if( (io_special & 0x10) != 0)
     {
-    	srv_serial_485_send(SRV_SERIAL_PC_CHANNEL,"PC_PORT1\r\n",0);
+    	srv_serial_485_send(SRV_SERIAL_RS485_1,"PC_PORT1\r\n",0);
     }
 
     if( (io_special & 0x20) != 0)
     {
-    	srv_serial_485_send(SRV_SERIAL_PLC_CHANNEL,"PLC_PORT2\r\n",0);
+    	srv_serial_485_send(SRV_SERIAL_RS485_2,"PLC_PORT2\r\n",0);
     }
 
 
