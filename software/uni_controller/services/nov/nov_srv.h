@@ -10,39 +10,17 @@
 
 
 
-#ifndef _WIN32
 
-#define VAR_NV_ATTR      __attribute__ ((section (".var_nv")))
+#define VAR_NV_ATTR     	  __attribute__ ((section (".var_nv")))
+#define VAR_NV_CRC_ATTR       __attribute__ ((section (".var_nv_crc")))
+#define VAR_SFLASH_ATTR  	  __attribute__ ((aligned(4096),section(".sflash")))
 
+extern uint8_t __var_nv_start__[];
+extern uint8_t __var_nv_crc__[];
+extern uint8_t __var_nv_end__[];
 
-#define BT_FLT    0
-#define BT_I32    1
-#define BT_U32    2
-#define BT_I8     3
-#define BT_U8     4
-
-
-typedef struct 
-{
-    char             name[SYS_VAR_NAME_LENGTH];
-    void           * ptr;     
-    uint32_t         size;   
-    uint32_t         basetype; 
-}var_caltable_t;
-
-
-
-extern char __var_nv_start__[];
-extern char __var_nv_end__[];
-
-#define 	__var_nv_size__ (__var_nv_end__ - __var_nv_start__)
-
-#else
-
-#define VAR_NV_ATTR      
-
-#endif
-
+#define 	__var_nv_size_with_crc__    (__var_nv_end__ - __var_nv_end__)
+#define 	__var_nv_size_without_crc__ (__var_nv_end__ - __var_nv_crc__)
 
 
 

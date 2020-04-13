@@ -67,6 +67,7 @@ RAM_D2 (xrw)     : ORIGIN = 0x30000000, LENGTH = 288K
 RAM_D3 (xrw)     : ORIGIN = 0x38000000, LENGTH = 64K
 ITCMRAM (xrw)    : ORIGIN = 0x00000000, LENGTH = 64K
 FLASH (rx)     	 : ORIGIN = 0x8000000, LENGTH = 128K
+SFLASH (r)       : ORIGIN = 0x90000000, LENGTH = 4096K
 }
 
 /* Define output sections */
@@ -137,6 +138,12 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH
 
+  .sflash :
+  {
+  	KEEP(*(.sflash))
+  } >SFLASH 	
+	
+
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
@@ -147,9 +154,7 @@ SECTIONS
     _sdata = .;        /* create a global symbol at data start */
     *(.data)           /* .data sections */
     *(.data*)          /* .data* sections */
-    __var_nv_start__ = .;
-    *(.var_nv)
-    __var_nv_end__ = .;
+    *(.fast) 		 	
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
   } >DTCMRAM AT> FLASH
@@ -165,7 +170,15 @@ SECTIONS
     *(.bss)
     *(.bss*)
     *(COMMON)
-
+    
+    . = ALIGN(4);
+    __var_nv_start__ = .;
+    *(.var_nv)
+    . = ALIGN(4);    
+    __var_nv_crc__ = .;
+    *(.var_nv_crc)
+    __var_nv_end__ = .;
+    
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;

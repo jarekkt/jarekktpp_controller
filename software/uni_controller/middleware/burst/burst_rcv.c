@@ -45,7 +45,6 @@ extern void burst_rcv_usb_tx(const char * msg,uint32_t msg_len);
 void burst_rcv_init()
 {
 	memset(&brcv,0,sizeof(brcv));
-
 }
 
 

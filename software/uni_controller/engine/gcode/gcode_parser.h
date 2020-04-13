@@ -51,9 +51,9 @@ typedef struct
 
 
 
-void gcode_parser_init(void);
-int32_t  gcode_parser_execute(gcode_command_t * cmd,const char * cmd_line);
-void     gcode_parser_error(char * buffer,uint32_t buffer_cnt);
+void 	 	 gcode_parser_init(void);
+int32_t  	 gcode_parser_execute(gcode_command_t * cmd,char * cmd_line);
+const char * gcode_parser_error(void);
 
 
 

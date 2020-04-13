@@ -4,7 +4,6 @@
     \brief
 */
 
-
 #include "system.h"
 #include "services.h"
 #include "middleware.h"
@@ -12,22 +11,29 @@
 #include "gcode_parser.h"
 
 
+
+typedef struct
+{
+	char 				token_letter;
+	gcode_item_e		token_id;
+	gcode_value_type_e	token_val_type;
+}gcode_table_token_t;
+
 typedef struct
 {
 	char 		fn_letter;
 	uint32_t 	fn_number;
 	gcode_fn_e  fn_id;
 
-	struct
-	{
-		char 				token_letter;
-		gcode_item_e		token_id;
-		gcode_value_type_e	token_val_type;
-	}tokens[GCODE_I_CNT];
+	gcode_table_token_t tokens[GCODE_I_CNT];
 
 }gcode_parse_table_t;
 
-
+typedef struct
+{
+	char error_message[64];
+	int	 parse_fn_idx;
+}gcode_pasres_ctx_t;
 
 gcode_parse_table_t  parse_table[] =
 {
@@ -52,28 +58,183 @@ gcode_parse_table_t  parse_table[] =
 
 };
 
+gcode_pasres_ctx_t gctx;
+
 void gcode_parser_init()
 {
-
+	memset(&gctx,0,sizeof(gctx));
 }
 
-void     gcode_parser_error(char * buffer,uint32_t buffer_cnt)
+const char * gcode_parser_error(void)
 {
-
+	return gctx.error_message;
 }
 
-int32_t  gcode_parser_execute(gcode_command_t * cmd,const char * cmd_line)
+int32_t  gcode_parse_fn(gcode_command_t * cmd,const char * chunk)
 {
-	int result = -1;
+	int    ii;
+	long   num;
+	char * endptr = NULL;
+
+	for(ii =0; ii < DIM(parse_table);ii++)
+	{
+		if(chunk[0] == parse_table[ii].fn_letter)
+		{
+			if(chunk[1]!= '\x0')
+			{
+				num  = strtol(&chunk[1], &endptr, 10);
+				if (*endptr != '\0')
+				{
+				  sprintf(gctx.error_message,"Wrong/missing number in %s",chunk);
+				  return -1;
+				}
+				else
+				{
+					if(num == parse_table[ii].fn_number)
+					{
+						cmd->fn = num == parse_table[ii].fn_id;
+						gctx.parse_fn_idx = ii;
+						return 0;
+					}
+				}
+			}
+		}
+	}
+
+	sprintf(gctx.error_message,"Unsupported function %s",chunk);
+
+	return -1;
+}
+
+int32_t  gcode_parse_token(gcode_command_t * cmd,const char * chunk,int token_idx)
+{
+	int 		ii;
+	uint32_t	mask = 0;
+	long   		num;
+	float       numf;
+	char * 		endptr;
+	const gcode_table_token_t * t = parse_table[gctx.parse_fn_idx].tokens;
 
 
+	for(ii = 0;ii < GCODE_I_CNT;ii++)
+	{
+		if(chunk[0] == t->token_letter)
+		{
+			if( (mask & (1<<ii) )!= 0)
+			{
+				sprintf(gctx.error_message,"Duplicate token %s",chunk);
+				// duplicate
+				return -1;
+			}
+			mask |=  (1<<ii);
+
+			cmd->tokens_present_mask |= (1<<ii);
+			cmd->tokens[token_idx].value_type = t->token_val_type;
+
+			switch(t->token_val_type)
+			{
+				case GCODE_V_NONE:
+				{
+					cmd->tokens[token_idx].value.val_ui32 = 0;
+				}break;
+
+				case GCODE_V_UINT:
+				{
+					num  = strtol(&chunk[1], &endptr, 10);
+					if ( (*endptr != '\0') || (num < 0) )
+					{
+					  sprintf(gctx.error_message,"Wrong uint value %s",chunk);
+					  return -1;
+					}
+					cmd->tokens[token_idx].value.val_ui32 = (uint32_t)num;
+				}break;
+
+				case GCODE_V_INT:
+				{
+					num  = strtol(&chunk[1], &endptr, 10);
+					if (*endptr != '\0')
+					{
+					  sprintf(gctx.error_message,"Wrong int value %s",chunk);
+					  return -1;
+					}
+					cmd->tokens[token_idx].value.val_i32 = (int32_t)num;
+				}break;
+
+				case GCODE_V_FLOAT:
+				{
+					numf = strtof(&chunk[1], &endptr);
+					if (*endptr != '\0')
+					{
+					  sprintf(gctx.error_message,"Wrong float value %s",chunk);
+					  return -1;
+					}
+					cmd->tokens[token_idx].value.val_float = numf;
+				}break;
+
+				default:
+				{
+					sprintf(gctx.error_message,"Internal error %s",chunk) ;
+					return -1;
+				}break;
+			}
+		}
+	}
+
+	return 0;
+}
+
+
+int32_t  gcode_parser_execute(gcode_command_t * cmd,char * cmd_line)
+{
+	int32_t result = -1;
+	int32_t idx;
     char *string,*found;
 
-    string = strdup("Hello there, peasants!");
-    printf("Original string: '%s'\n",string);
 
-    while( (found = strsep(&string," ")) != NULL )
-        printf("%s\n",found);
+    // Initial settings
+    string = cmd_line;
+    idx    = 0;
+    memset(cmd,0,sizeof(*cmd));
+
+    // Cut off comments
+    found = strchr(cmd_line,';');
+    if(found)
+    {
+    	*found = '\x0';
+    }
+
+    while(1)
+    {
+    	found = strsep(&string," ");
+    	if(found != NULL)
+    	{
+    		if(idx == 0)
+    		{
+				if(gcode_parse_fn(cmd,found)!= 0)
+				{
+					break;
+				}
+				// Good ,we have header parsed
+				result = 0;
+    		}
+    		else
+    		{
+    			if(gcode_parse_token(cmd,found,idx-1)!= 0)
+    			{
+    				// Bad , wrong token
+    				result = -1;
+    				break;
+    			}
+    		}
+    	}
+		else
+		{
+			break;
+		}
+
+    	idx++;
+    }
+
 
 	return result;
 }

@@ -70,6 +70,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Implementation/engine/params</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Implementation/engine/version</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -220,24 +225,24 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Implementation/stm32cubemx/STM32H750VBTx_FLASH.ld</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/stm32cubemx/STM32H750VBTx_FLASH.ld</locationURI>
-		</link>
-		<link>
 			<name>Implementation/stm32cubemx/Src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Implementation/stm32cubemx/startup_stm32h750xx.s</name>
+			<name>Implementation/system/STM32H750VBTx_FLASH.ld</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/stm32cubemx/startup_stm32h750xx.s</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/system/STM32H750VBTx_FLASH.ld</locationURI>
 		</link>
 		<link>
 			<name>Implementation/system/debug</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Implementation/system/startup_stm32h750xx.s</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/system/startup_stm32h750xx.s</locationURI>
 		</link>
 		<link>
 			<name>Implementation/system/system.c</name>
@@ -273,6 +278,16 @@
 			<name>Implementation/engine/motion/motion_engine.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/engine/motion/motion_engine.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/params/params.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/params/params.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/params/params.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/params/params.h</locationURI>
 		</link>
 		<link>
 			<name>Implementation/engine/version/describe.cmd</name>
@@ -463,6 +478,16 @@
 			<name>Implementation/services/nov/nov_srv.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/services/nov/nov_srv.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/services/nov/nov_srv_qspi.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/services/nov/nov_srv_qspi.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/services/nov/nov_srv_qspi.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/services/nov/nov_srv_qspi.h</locationURI>
 		</link>
 		<link>
 			<name>Implementation/services/serial_485/serial_485_srv.c</name>

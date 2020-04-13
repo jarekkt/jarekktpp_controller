@@ -101,9 +101,6 @@
 							<tool id="com.atollic.truestudio.exe.debug.toolchain.secoutput.1495115621" name="Other" superClass="com.atollic.truestudio.exe.debug.toolchain.secoutput"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.atollic.truestudio.exe.debug.2003444537.19522729" name="heap_3.c" rcbsApplicability="disable" resourcePath="Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_3.c" toolsToInvoke="com.atollic.truestudio.exe.debug.toolchain.gcc.1636176948.1119528303">
-						<tool id="com.atollic.truestudio.exe.debug.toolchain.gcc.1636176948.1119528303" name="C Compiler" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc.1636176948"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry excluding="Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_3.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_5.c|Implementation/stm32cubemx/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_2.c|Implementation/stm32cubemx/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_utils.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
@@ -129,7 +126,7 @@
 							<option id="com.atollic.truestudio.toolchain_options.mcu.1972685431" name="Microcontroller" superClass="com.atollic.truestudio.toolchain_options.mcu" value="STM32H750VB" valueType="string"/>
 							<option id="com.atollic.truestudio.toolchain_options.vendor.416263958" name="Vendor name" superClass="com.atollic.truestudio.toolchain_options.vendor" value="STMicroelectronics" valueType="string"/>
 							<targetPlatform archList="all" id="com.atollic.truestudio.exe.release.toolchain.platform.1401316319" isAbstract="false" name="release platform" superClass="com.atollic.truestudio.exe.release.toolchain.platform"/>
-							<builder buildPath="${workspace_loc:/printer_base}/Release" customBuilderProperties="toolChainpathString=C:\\Program Files (x86)\\Atollic\\TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|com.atollic.truestudio.common_options.target.mcu=STM32H750VB|toolChainpathType=1|com.atollic.truestudio.common_options.target.vendor=STMicroelectronics|" id="com.atollic.truestudio.mbs.builder1.11134242" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1"/>
+							<builder buildPath="${workspace_loc:/printer_base}/Release" customBuilderProperties="toolChainpathString=C:\\Program Files (x86)\\Atollic\\TrueSTUDIO for STM32 9.3.0\\ARMTools\\bin|toolChainpathType=1|com.atollic.truestudio.common_options.target.vendor=STMicroelectronics|com.atollic.truestudio.common_options.target.mcu=STM32H750VB|" id="com.atollic.truestudio.mbs.builder1.11134242" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="com.atollic.truestudio.mbs.builder1"/>
 							<tool id="com.atollic.truestudio.exe.release.toolchain.as.595638591" name="Assembler" superClass="com.atollic.truestudio.exe.release.toolchain.as">
 								<option id="com.atollic.truestudio.common_options.target.endianess.1423835530" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.802853627" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" value="STM32H750VB" valueType="enumerated"/>
@@ -177,7 +174,7 @@
 								<option id="com.atollic.truestudio.common_options.target.instr_set.305710673" name="Instruction set" superClass="com.atollic.truestudio.common_options.target.instr_set" value="com.atollic.truestudio.common_options.target.instr_set.thumb2" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.common_options.target.fpucore.815315645" name="FPU" superClass="com.atollic.truestudio.common_options.target.fpucore" value="com.atollic.truestudio.common_options.target.fpucore.fpv5-sp-d16" valueType="enumerated"/>
 								<option id="com.atollic.truestudio.common_options.target.fpu.28134314" name="Floating point" superClass="com.atollic.truestudio.common_options.target.fpu" value="com.atollic.truestudio.common_options.target.fpu.hard" valueType="enumerated"/>
-								<option id="com.atollic.truestudio.ld.general.scriptfile.1670059888" name="Linker script" superClass="com.atollic.truestudio.ld.general.scriptfile" useByScannerDiscovery="false" value="${ProjDirPath}/../stm32cubemx/STM32H750VBTx_FLASH.ld" valueType="string"/>
+								<option id="com.atollic.truestudio.ld.general.scriptfile.1670059888" name="Linker script" superClass="com.atollic.truestudio.ld.general.scriptfile" useByScannerDiscovery="false" value="${ProjDirPath}/../system/STM32H750VBTx_FLASH.ld" valueType="string"/>
 								<option id="com.atollic.truestudio.ld.optimization.do_garbage.935005517" name="Dead code removal " superClass="com.atollic.truestudio.ld.optimization.do_garbage" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.atollic.truestudio.common_options.target.interwork.1945989884" name="Mix ARM/Thumb" superClass="com.atollic.truestudio.common_options.target.interwork"/>
 								<inputType id="com.atollic.truestudio.ld.input.1521946107" name="Input" superClass="com.atollic.truestudio.ld.input">

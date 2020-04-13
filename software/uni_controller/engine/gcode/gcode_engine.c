@@ -12,26 +12,12 @@
 
 #include "gcode_parser.h"
 
-typedef struct
-{
-	float pos;
-	float speed;
-	float speed_home;
-	float accel;
-	float jerk;
 
-	float min;
-	float max;
-
-	int32_t is_homed;
-}gcode_axis_t;
 
 
 typedef struct
 {
-	gcode_axis_t  X,Y,Z;
-	int32_t		  is_mm;
-	int32_t		  is_absolute;
+	int32_t		  is_inch;
 }gcode_ctx_t;
 
 
@@ -47,13 +33,14 @@ typedef struct
 }gcode_nv_data_t;
 
 
-gcode_data_t  gcd;
+gcode_data_t     gcd;
 gcode_nv_data_t  gcd_nv VAR_NV_ATTR;
 
 
 void gcode_engine_init_default(void)
 {
 	memset(&gcd_nv,0,sizeof(gcd_nv));
+	memset(&gcd,0,sizeof(gcd));
 }
 
 void gcode_engine_init(void)
