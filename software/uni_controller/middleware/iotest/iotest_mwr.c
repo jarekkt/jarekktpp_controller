@@ -49,7 +49,7 @@ const mwr_gpio_sequence_t mwr_test_pins[] =
 mwr_iotest_type  iot;
 
 
-const var_ptable_t   iotest_mwr_var_ptable[] SERMON_ATTR =  
+const var_ptable_t   iotest_mwr_var_ptable[] SERMON_ATTR =
 {
   { "iotest_ovr_on",    &iot.ovr_on            ,E_VA_UINT_FREE    },
   { "iotest_ovr_off",   &iot.ovr_off           ,E_VA_UINT_FREE    },

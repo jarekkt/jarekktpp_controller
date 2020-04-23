@@ -10,7 +10,7 @@
 
 
 #include "system.h"
-
+#include "burst_rcv.h"
 
 void burst_mux_init();
 void burst_mux_once();

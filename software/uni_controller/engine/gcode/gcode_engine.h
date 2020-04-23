@@ -2,13 +2,15 @@
 #define GCODE_ENGINE_H
  
 
+#include "engine.h"
+#include "middleware.h"
 
 
 void gcode_engine_init(void);
 void gcode_engine_once(void);
 
 
-void gcode_engine_command(const char * cmd_line, const void * rcv_ctx);
+void gcode_engine_command(char * cmd_line, const burst_rcv_ctx_t * rcv_ctx);
 
 
 

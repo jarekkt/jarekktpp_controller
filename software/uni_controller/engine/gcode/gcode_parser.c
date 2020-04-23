@@ -55,6 +55,21 @@ gcode_parse_table_t  parse_table[] =
 				{ 'F' , GCODE_I_F, GCODE_V_FLOAT} ,
 			}
 		},
+		{
+			'G',20, GCODE_F_G20,
+		},
+		{
+			'G',21, GCODE_F_G20,
+		},
+		{
+			'G',28, GCODE_F_G28,
+			{
+				{ 'X' , GCODE_I_X, GCODE_V_NONE} ,
+				{ 'Y' , GCODE_I_Y, GCODE_V_NONE} ,
+				{ 'Z' , GCODE_I_Z, GCODE_V_NONE} ,
+				{ 'F' , GCODE_I_F, GCODE_V_NONE} ,
+			}
+		},
 
 };
 

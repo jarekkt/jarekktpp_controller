@@ -142,6 +142,12 @@ void burst_rcv_once()
 */
 void burst_rcv_send_response(const burst_rcv_ctx_t * rcv_ctx,char * response, int length)
 {
+	if(length < 0)
+	{
+		length = strlen(response);
+	}
+
+
     switch(rcv_ctx->channel)
     {
 			case CH_RS485_1:

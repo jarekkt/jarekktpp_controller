@@ -59,19 +59,6 @@ void ATTRIBUTE_IN_RAM TIM3_IRQHandler()
   __HAL_TIM_CLEAR_IT(&tsrv.hTim3, TIM_IT_UPDATE);
 }
 
-void  ATTRIBUTE_IN_RAM   srv_hwio_process_timers_when_irq_disable(void)
-{
-  if(__HAL_TIM_GET_FLAG(&tsrv.hTim2,TIM_IT_UPDATE)!= 0)
-  {
-      TIM2_IRQHandler();
-  }
-
-  if(__HAL_TIM_GET_FLAG(&tsrv.hTim3,TIM_IT_UPDATE)!= 0)
-  {
-      TIM3_IRQHandler();
-  }
-}
-
 void srv_timer_once(void)
 {
 
@@ -128,7 +115,7 @@ void srv_timer_init(void)
     __HAL_RCC_TIM5_CLK_ENABLE();
 
     tsrv.hTim5.Instance           = TIM5;
-    tsrv.hTim5.Init.Prescaler     = (tsrv.tim_clock/ 1000000) - 1;
+    tsrv.hTim5.Init.Prescaler     = (tsrv.tim_clock/ TIMER_SRV_1MHZ) - 1;
     tsrv.hTim5.Init.CounterMode   = TIM_COUNTERMODE_UP;
     tsrv.hTim5.Init.Period        = -1;
     tsrv.hTim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV4;

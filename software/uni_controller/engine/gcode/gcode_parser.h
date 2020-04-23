@@ -6,15 +6,20 @@ typedef enum
 {
    GCODE_F_G0,
    GCODE_F_G1,
+   GCODE_F_G20,
+   GCODE_F_G21,
+   GCODE_F_G28,
    GCODE_F_M101,
    GCODE_F_CNT
 }gcode_fn_e;
 
+
+
 typedef enum
 {
-	GCODE_I_X,
-	GCODE_I_Y,
-	GCODE_I_Z,
+	GCODE_I_X = 0,
+	GCODE_I_Y = 1,
+	GCODE_I_Z = 2,
 	GCODE_I_F,
 	GCODE_I_CNT
 }gcode_item_e;

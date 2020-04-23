@@ -5,3 +5,4 @@ IAR
 *.o
 *.su
 Release
+/software/uni_controller/stm32cubemx/*.gpdsc
