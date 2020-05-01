@@ -21,6 +21,7 @@ typedef struct
 	float T13_s;	   // Distance for T13 phase
 	float T13_v;	   // Speed at the end of T13 phase
 
+	float T1_s;		   // Distance for T1 phase
 	float T2_s;		   // Distance for T2 phase
 
 

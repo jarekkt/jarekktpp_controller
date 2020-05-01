@@ -32,6 +32,11 @@ uint32_t srv_timer_quad_get(uint32_t ch)
 	   {
 	      result = __HAL_TIM_GET_COUNTER(&htim4);
 	   }break;
+
+	   default:
+	   {
+		   result = 0;
+	   }break;
 	}
 
 	return result;
