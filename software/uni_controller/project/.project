@@ -280,6 +280,26 @@
 			<locationURI>PARENT-1-PROJECT_LOC/engine/motion/motion_engine.h</locationURI>
 		</link>
 		<link>
+			<name>Implementation/engine/motion/motion_eq.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/motion/motion_eq.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/motion/motion_eq.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/motion/motion_eq.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/motion/motion_scurve.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/motion/motion_scurve.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/engine/motion/motion_scurve.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/engine/motion/motion_scurve.h</locationURI>
+		</link>
+		<link>
 			<name>Implementation/engine/params/params.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/engine/params/params.c</locationURI>

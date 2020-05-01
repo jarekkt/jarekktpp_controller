@@ -30,8 +30,8 @@ typedef struct
 	int32_t   speed_001mm_s;
 	uint32_t  speed_safe_001mm_s;
 
-	int32_t   accel_001mm;
-	int32_t   jerk_001mm;
+	int32_t   accel_001mm_s2;
+	int32_t   jerk_001mm_s3;
 
 }axis_params_t;
 

@@ -13,37 +13,6 @@
 #include "motion_engine.h"
 
 
-typedef enum
-{
-	MF_START_JERK_PLUS,
-	MF_START_STEADY,
-	MF_START_JERK_MINUS,
-	MF_CONSTANT_SPEED,
-	MF_STOP_JERK_PLUS,
-	MF_STOP_STEADY,
-	MF_STOP_JERK_MINUS,
-	MF_PHASES_CNT
-}motion_phases_e;
-
-
-typedef struct
-{
-	uint32_t    pulse_count;
-
-	uint32_t	speed_fract;
-	int32_t	    accel_fract;
-	int32_t		jerk_fract;
-}motion_phase_t;
-
-typedef struct
-{
-	int32_t				pos;
-	uint32_t			accu;
-	motion_phases_e		phase;
-	motion_phase_t  	mf[MF_PHASES_CNT];
-}motion_timer_t;
-
-
 
 
 typedef struct

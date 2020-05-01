@@ -6,3 +6,4 @@ IAR
 *.su
 Release
 /software/uni_controller/stm32cubemx/*.gpdsc
+/software/test/.idea

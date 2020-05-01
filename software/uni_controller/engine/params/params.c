@@ -33,8 +33,8 @@ const var_ptable_t   params_var_ptable[] SERMON_ATTR =
   { "x_endpos_max_value",   	&pctx_nv.axis[AXIS_X].endpos_max_value      ,E_VA_INT_FREE   },
   { "x_speed_001mm_s",   		&pctx_nv.axis[AXIS_X].speed_001mm_s       	,E_VA_INT_FREE   },
   { "x_speed_safe_001mm_s",   	&pctx_nv.axis[AXIS_X].speed_safe_001mm_s    ,E_VA_INT_FREE   },
-  { "x_accel_001mm",   			&pctx_nv.axis[AXIS_X].accel_001mm       	,E_VA_INT_FREE   },
-  { "x_jerk_001mm",   			&pctx_nv.axis[AXIS_X].jerk_001mm       		,E_VA_INT_FREE   },
+  { "x_accel_001mm_s2",   		&pctx_nv.axis[AXIS_X].accel_001mm_s2       	,E_VA_INT_FREE   },
+  { "x_jerk_001mm_s3",   		&pctx_nv.axis[AXIS_X].jerk_001mm_s3       	,E_VA_INT_FREE   },
 
   { "y_pulses_step_100mm",   	&pctx_nv.axis[AXIS_Y].pulses_step_100mm     ,E_VA_INT_FREE   },
   { "y_pulses_enc_100mm",   	&pctx_nv.axis[AXIS_Y].pulses_enc_100mm      ,E_VA_INT_FREE   },
@@ -46,8 +46,8 @@ const var_ptable_t   params_var_ptable[] SERMON_ATTR =
   { "y_endpos_may_value",   	&pctx_nv.axis[AXIS_Y].endpos_max_value      ,E_VA_INT_FREE   },
   { "y_speed_001mm_s", 			&pctx_nv.axis[AXIS_Y].speed_001mm_s       	,E_VA_INT_FREE   },
   { "y_speed_safe_001mm_s",   	&pctx_nv.axis[AXIS_Y].speed_safe_001mm_s    ,E_VA_INT_FREE   },
-  { "y_accel_001mm",   			&pctx_nv.axis[AXIS_Y].accel_001mm       	,E_VA_INT_FREE   },
-  { "y_jerk_001mm",   			&pctx_nv.axis[AXIS_Y].jerk_001mm       		,E_VA_INT_FREE   },
+  { "y_accel_001mm_s2",   		&pctx_nv.axis[AXIS_Y].accel_001mm_s2       	,E_VA_INT_FREE   },
+  { "y_jerk_001mm_s3",   		&pctx_nv.axis[AXIS_Y].jerk_001mm_s3       	,E_VA_INT_FREE   },
 
   { "z_pulses_step_100mm",   	&pctx_nv.axis[AXIS_Z].pulses_step_100mm     ,E_VA_INT_FREE   },
   { "z_pulses_enc_100mm",   	&pctx_nv.axis[AXIS_Z].pulses_enc_100mm      ,E_VA_INT_FREE   },
@@ -59,8 +59,8 @@ const var_ptable_t   params_var_ptable[] SERMON_ATTR =
   { "z_endpos_maz_value",   	&pctx_nv.axis[AXIS_Z].endpos_max_value      ,E_VA_INT_FREE   },
   { "z_speed_001mm_s",  		&pctx_nv.axis[AXIS_Z].speed_001mm_s       	,E_VA_INT_FREE   },
   { "z_speed_safe_001mm_s",   	&pctx_nv.axis[AXIS_Z].speed_safe_001mm_s    ,E_VA_INT_FREE   },
-  { "z_accel_001mm",   			&pctx_nv.axis[AXIS_Z].accel_001mm       	,E_VA_INT_FREE   },
-  { "z_jerk_001mm",   			&pctx_nv.axis[AXIS_Z].jerk_001mm       		,E_VA_INT_FREE   },
+  { "z_accel_001mm_s2",   		&pctx_nv.axis[AXIS_Z].accel_001mm_s2       	,E_VA_INT_FREE   },
+  { "z_jerk_001mm_s3",   		&pctx_nv.axis[AXIS_Z].jerk_001mm_s3       	,E_VA_INT_FREE   },
 };
 
 
@@ -85,8 +85,8 @@ void params_init_default(void)
 	pctx_nv.axis[AXIS_X].speed_001mm_s		= 500000;
 	pctx_nv.axis[AXIS_X].speed_safe_001mm_s = 5000;
 
-	pctx_nv.axis[AXIS_X].accel_001mm		= 500000;
-	pctx_nv.axis[AXIS_X].jerk_001mm			=  50000;
+	pctx_nv.axis[AXIS_X].accel_001mm_s2		= 500000;
+	pctx_nv.axis[AXIS_X].jerk_001mm_s3		=  50000;
 
 	/* Y */
 	pctx_nv.axis[AXIS_Y].pulses_step_100mm	= 2000;
@@ -103,8 +103,8 @@ void params_init_default(void)
 	pctx_nv.axis[AXIS_Y].speed_001mm_s		= 500000;
 	pctx_nv.axis[AXIS_Y].speed_safe_001mm_s = 5000;
 
-	pctx_nv.axis[AXIS_Y].accel_001mm		= 500000;
-	pctx_nv.axis[AXIS_Y].jerk_001mm			=  50000;
+	pctx_nv.axis[AXIS_Y].accel_001mm_s2		= 500000;
+	pctx_nv.axis[AXIS_Y].jerk_001mm_s3		=  50000;
 
 
 	/* Z */
@@ -122,8 +122,8 @@ void params_init_default(void)
 	pctx_nv.axis[AXIS_Z].speed_001mm_s		= 500000;
 	pctx_nv.axis[AXIS_Z].speed_safe_001mm_s = 5000;
 
-	pctx_nv.axis[AXIS_Z].accel_001mm		= 500000;
-	pctx_nv.axis[AXIS_Z].jerk_001mm			=  50000;
+	pctx_nv.axis[AXIS_Z].accel_001mm_s2		= 500000;
+	pctx_nv.axis[AXIS_Z].jerk_001mm_s3		=  50000;
 
 
 
