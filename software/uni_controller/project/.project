@@ -540,6 +540,36 @@
 			<locationURI>PARENT-1-PROJECT_LOC/services/sermon/sermon_srv.h</locationURI>
 		</link>
 		<link>
+			<name>Implementation/services/timer/time_pulse.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/services/timer/time_pulse.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/services/timer/time_quad.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/services/timer/time_quad.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/services/timer/timer_pulse.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/services/timer/timer_pulse.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/services/timer/timer_pwm.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/services/timer/timer_pwm.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/services/timer/timer_pwm.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/services/timer/timer_pwm.h</locationURI>
+		</link>
+		<link>
+			<name>Implementation/services/timer/timer_quad.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/services/timer/timer_quad.h</locationURI>
+		</link>
+		<link>
 			<name>Implementation/services/timer/timer_srv.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/services/timer/timer_srv.c</locationURI>
@@ -688,6 +718,11 @@
 			<name>Implementation/stm32cubemx/Src/quadspi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/stm32cubemx/Src/quadspi.c</locationURI>
+		</link>
+		<link>
+			<name>Implementation/stm32cubemx/Src/spi.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/stm32cubemx/Src/spi.c</locationURI>
 		</link>
 		<link>
 			<name>Implementation/stm32cubemx/Src/stm32h7xx_hal_msp.c</name>

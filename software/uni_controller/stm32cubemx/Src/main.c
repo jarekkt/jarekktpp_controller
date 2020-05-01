@@ -27,6 +27,7 @@
 #include "iwdg.h"
 #include "mdma.h"
 #include "quadspi.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
@@ -108,7 +109,6 @@ int main(void)
   MX_UART5_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
-  MX_TIM1_Init();
   MX_I2C1_Init();
   MX_TIM12_Init();
   MX_TIM4_Init();
@@ -119,6 +119,11 @@ int main(void)
   MX_TIM3_Init();
   MX_FDCAN1_Init();
   MX_QUADSPI_Init();
+  MX_ADC3_Init();
+  MX_TIM15_Init();
+  MX_TIM1_Init();
+  MX_TIM8_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
   extern void system_main_init();
 
@@ -203,8 +208,9 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_USART2
                               |RCC_PERIPHCLK_USART6|RCC_PERIPHCLK_FDCAN
                               |RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_UART5
-                              |RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_USB|RCC_PERIPHCLK_QSPI;
+                              |RCC_PERIPHCLK_SPI2|RCC_PERIPHCLK_ADC
+                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_USB
+                              |RCC_PERIPHCLK_QSPI;
   PeriphClkInitStruct.PLL2.PLL2M = 1;
   PeriphClkInitStruct.PLL2.PLL2N = 20;
   PeriphClkInitStruct.PLL2.PLL2P = 2;
@@ -222,6 +228,7 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.PLL3.PLL3VCOSEL = RCC_PLL3VCOWIDE;
   PeriphClkInitStruct.PLL3.PLL3FRACN = 0;
   PeriphClkInitStruct.QspiClockSelection = RCC_QSPICLKSOURCE_D1HCLK;
+  PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL;
   PeriphClkInitStruct.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL2;
   PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_D2PCLK1;
   PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16CLKSOURCE_D2PCLK2;
