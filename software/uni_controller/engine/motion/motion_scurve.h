@@ -28,12 +28,8 @@ typedef struct
 
 
 
-void motion_scurve_init(void);
-void motion_scurve_once(void);
-
-
 void motion_scurve_calc(motion_calc_t * calc,
-						uint32_t 		dist_mm,
+						uint32_t 		dist_001mm,
 						uint32_t 		speed_safe_001mm_s,
 						uint32_t 		speed_001mm_s,
 						uint32_t 		accel_001mm_s2,
