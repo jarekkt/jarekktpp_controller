@@ -6,21 +6,19 @@ import numpy as np
 
 class tick:
     def __init__(self):
-        self.plt      = plt
-        self.m_dist   = 2000.0
-        self.m_speed  = 800.0
-        self.m_speed0 = 00.0
-        self.m_accel  = 1000.0
-        self.m_accel_s = 2*self.m_accel
-        self.m_jerk   = 100.0
-        self.m_jerk_used = self.m_jerk
-        self.m_tick   = 0.00001
-        self.c_speed  = self.m_speed0
-        self.c_accel  = 0
-        self.c_jerk   = 0
-        self.c_dist   = 0
-        self.c_tick   = 0
-        self.c_idx    = 0
+        self.plt       = plt
+        self.m_dist    = 20000.0
+        self.m_speed   = 1500.0
+        self.m_speed0  = 500.0
+        self.m_accel_s = 1000.0
+        self.m_jerk    = 500.0
+        self.m_tick    = 0.00001
+        self.c_speed   = self.m_speed0
+        self.c_accel   = 0
+        self.c_jerk    = 0
+        self.c_dist    = 0
+        self.c_tick    = 0
+        self.c_idx     = 0
 
         self.t_dist   = arr.array('f')
         self.t_speed  = arr.array('f')
@@ -28,71 +26,86 @@ class tick:
         self.t_jerk   = arr.array('f')
         self.t_time   = arr.array('f')
 
-
     def calc_phase(self):
         hd = self.m_dist / 2
-        # hd = m_speed0 * T + 0.5 * m_accel * T^2
-        # T->   (0.5 * m_accel ) * T^2 + (m_speed0) * T + (-hd) = 0
-        delta = self.m_speed0 * self.m_speed0 - 4 * 0.5 * self.m_accel * -hd
-        T = (-self.m_speed0 + math.sqrt(delta)) / (2* (0.5 * self.m_accel))
 
-        if self.m_speed0 + self.m_accel * T > self.m_speed:
-            #Acceleration phase + constant speed phase
-            self.T1 = (self.m_speed - self.m_speed0)/self.m_accel
-            self.T1_dist = self.m_speed0 * self.T1 + self.m_accel * self.T1*self.T1/2
-            self.T3 = self.T1
-            self.T3_dist = self.T1_dist
-            self.T2_dist = self.m_dist - (self.T1_dist + self.T3_dist)
-            self.T2 = self.T2_dist/self.m_speed
-        else:
-            #Single accelerated phase
-            self.T1 = T
-            self.T1_dist = self.m_speed0 * self.T1 + self.m_accel * self.T1 * self.T1 / 2
-            self.T2 = 0.0
-            self.T2_dist = 0.0
-            self.T3 = T
-            self.T3_dist = self.T1_dist
+        h_cc = (2*self.m_speed0 + self.m_accel_s * self.m_accel_s/self.m_jerk)*self.m_accel_s/self.m_jerk
 
-        print( 'Trapezoid T1 {}/{} T2 {}/{} T3 {}/{}'.format(self.T1,self.T1_dist,self.T2,self.T2_dist,self.T3,self.T3_dist))
-        print('Total {}/{}'.format(self.m_dist,self.T1_dist+self.T2_dist+self.T3_dist))
+        if h_cc > hd:
+            #Acceleration needs to be lowered - even ideal S curve gives too big distance
+            old_acc = self.m_accel_s
+            coeff = [1/(self.m_jerk*self.m_jerk),(2*self.m_speed0/self.m_jerk),0,-hd]
+            roots = np.roots(coeff)
+            self.m_accel_s = roots[2]
+            print('Changing acceleration from {} to {} (distance limit)',old_acc,self.m_accel_s)
 
+        h_v  = self.m_speed0 + self.m_accel_s * self.m_accel_s/self.m_jerk
 
+        if h_v > self.m_speed:
+            #Given acceleration makes too big speed - even for ideal S curve
+            old_acc = self.m_accel_s
+            old_speed = self.m_speed
+            self.m_accel_s = math.sqrt((self.m_speed - self.m_speed0)*self.m_jerk)
+            self.m_speed   = self.m_speed0 + self.m_accel_s * self.m_accel_s/self.m_jerk
+            print('Changing acceleration {}->{} and speed {}->{} (max speed limit)', old_acc, self.m_accel_s,old_speed,self.m_speed )
 
-        if self.m_accel_s > 2* self.m_accel:
-            self.m_accel_s = 2 * self.m_accel
-            self.m_jerk_used = 2 * self.m_accel_s / self.T1
-        else:
-            self.m_jerk_used = self.m_accel_s * self.m_accel_s / (self.m_speed - self.m_speed0)
-
-        self.T11 = self.m_accel_s/self.m_jerk_used
-        self.T12 = self.T1 - 2* self.T11
+        self.T11 = self.m_accel_s / self.m_jerk
         self.T13 = self.T11
-
-        print( 'S phases T11 {} T12 {} T13 {}'.format(self.T11,self.T12,self.T13))
-
+        self.T12 = (self.m_speed - self.m_speed0 - (self.m_accel_s * self.m_accel_s)/self.m_jerk)/self.m_accel_s
 
 
-    def one_step(self,mode):
+        self.s_t1 = (self.m_speed0 + (self.m_accel_s * self.m_accel_s)/(6*self.m_jerk))*(self.m_accel_s/self.m_jerk)
+        self.v_t1 = self.m_speed0 + (self.m_accel_s * self.m_accel_s)/(2*self.m_jerk)
 
-        if mode == 0:
-            if self.c_tick < self.T1:
-                self.c_accel = self.m_accel
-                self.c_speed = self.c_speed + self.c_accel * self.m_tick
-            elif self.c_tick < self.T2 + self.T1:
-                pass
-            else:
-                self.c_speed = self.c_speed - self.c_accel * self.m_tick
+        self.s_t2 =  self.v_t1* self.T12 + self.m_accel_s * self.T12 * self.T12 / 2
+        self.s_v2 =  self.m_speed - (self.m_accel_s * self.m_accel_s) /(2*self.m_jerk)
 
-        if mode == 1:
+        self.s_t3 =  (self.s_v2 + (self.m_accel_s * self.m_accel_s)/(3*self.m_jerk))*(self.m_accel_s/self.m_jerk)
+        self.v_t3 =  self.s_v2 + self.m_accel_s * self.T13 - self.m_jerk * self.T13 * self.T13 /2
 
+        self.s_t123 = self.s_t1 + self.s_t2 + self.s_t3
+
+        if self.s_t123 > hd:
+            # Reaching max speed gives too large distance
+            # Cut linear acceleration period
+            lc = hd - self.s_t1
+            print('Too long distance {} > {}'.format(self.s_t123,hd))
+            coeff = [self.m_accel_s/2, self.v_t1 + self.m_accel_s*self.T11,self.T11* self.v_t1+self.m_accel_s*self.T11*self.T11/2-self.m_jerk*self.T11*self.T11*self.T11/6-lc]
+            roots = np.roots(coeff)
+            self.T12 = roots[1]
+
+            self.s_t2 =  self.v_t1* self.T12 + self.m_accel_s * self.T12 * self.T12 / 2
+            self.s_v2 =  self.v_t1 + self.m_accel_s * self.T12
+            self.s_t3 =  (self.s_v2 + (self.m_accel_s * self.m_accel_s)/(3*self.m_jerk))*(self.m_accel_s/self.m_jerk)
+            self.v_t3 =  self.s_v2 + self.m_accel_s * self.T13 - self.m_jerk * self.T13 *self.T13 /2
+            self.s_t123 = self.s_t1 + self.s_t2 + self.s_t3
+
+        if self.v_t3 > self.m_speed:
+            print('Too big speed {}>{}'.format(self.v_t3 , self.m_speed))
+            # We are within distance limit, but we reach too big end speed
+            self.T12  = (self.m_speed  -   self.v_t1 + self.m_jerk * self.T13 *self.T13 /2 - self.m_accel_s * self.T13)/  self.m_accel_s
+
+            self.s_t2 = self.v_t1 * self.T12 + self.m_accel_s * self.T12 * self.T12 / 2
+            self.s_v2 = self.v_t1 + self.m_accel_s * self.T12
+            self.s_t3 = (self.s_v2 + (self.m_accel_s * self.m_accel_s) / (3 * self.m_jerk)) * (self.m_accel_s / self.m_jerk)
+            self.s_t123 = self.s_t1 + self.s_t2 + self.s_t3
+
+        self.T1 = self.T11 + self.T12 + self.T13
+        self.T2 =  2 * (hd -  self.s_t123) / self.m_speed
+        print('T11={} T12={} T13={}  T1={} hd/s1 = {}/{}  T2={}'.format(self.T11,self.T12,self.T13,self.T11+self.T12+self.T13,hd,self.s_t123,self.T2) )
+
+
+
+
+    def one_step(self):
             if self.c_tick < self.T1:
                 if self.c_tick < self.T11:
-                    self.c_jerk = self.m_jerk_used
+                    self.c_jerk = self.m_jerk
                 elif self.c_tick < self.T11+self.T12:
                     self.c_jerk  = 0
                     self.c_accel = self.m_accel_s
                 else:
-                    self.c_jerk = -self.m_jerk_used
+                    self.c_jerk = -self.m_jerk
 
                 self.c_accel = self.c_accel + self.c_jerk * self.m_tick
                 self.c_speed = self.c_speed + self.c_accel * self.m_tick
@@ -101,25 +114,25 @@ class tick:
                 self.c_speed = self.m_speed
                 self.c_jerk  = 0
             else:
-                if self.c_tick < self.T2 + self.T1+self.T11:
-                    self.c_jerk = -self.m_jerk_used
+                if self.c_tick < self.T2 + self.T1+ self.T11:
+                    self.c_jerk = -self.m_jerk
                 elif self.c_tick < self.T2 + self.T1 + self.T11+self.T12:
                     self.c_jerk = 0
                     self.c_accel = -self.m_accel_s
                 else:
-                    self.c_jerk = +self.m_jerk_used
+                    self.c_jerk = +self.m_jerk
 
                 self.c_accel = self.c_accel + self.c_jerk * self.m_tick
                 self.c_speed = self.c_speed + self.c_accel * self.m_tick
 
-        self.c_dist = self.c_dist + self.c_speed * self.m_tick
+            self.c_dist = self.c_dist + self.c_speed * self.m_tick
 
 
     def execute(self):
         self.calc_phase()
 
         while self.m_dist >= self.c_dist:
-            self.one_step(1)
+            self.one_step()
             self.add_log()
             self.advance()
 
