@@ -6,6 +6,8 @@
 void params_init(void);
 void params_once(void);
 
+#define MM_TO_001(x_)   ((uint32_t)((x_)*1000))
+
 typedef enum
 {
 	AXIS_X,
@@ -28,6 +30,7 @@ typedef struct
 	int32_t   endpos_max_value;
 
 	int32_t   speed_001mm_s;
+	int32_t   speed_home_001mm_s;
 	uint32_t  speed_safe_001mm_s;
 
 	int32_t   accel_001mm_s2;
@@ -36,12 +39,6 @@ typedef struct
 }axis_params_t;
 
 
-typedef struct
-{
-	int32_t  pos_001mm[AXIS_CNT];
-
-}axis_state_t;
-
 
 typedef struct
 {
@@ -49,12 +46,8 @@ typedef struct
 	uint32_t			estop_mask;
 }params_nv_ctx_t;
 
-typedef struct
-{
-	axis_state_t 		axis[AXIS_CNT];
-}params_ctx_t;
 
-extern const params_ctx_t 	  *  ppctx;
+
 extern const params_nv_ctx_t  *  ppctx_nv;
 
 

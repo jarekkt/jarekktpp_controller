@@ -17,16 +17,29 @@ typedef enum
 
 typedef struct
 {
-	uint32_t    pulse_count;
+	uint32_t			pulse_count_total;
+	uint32_t			pulse_count;
 
-	uint32_t	speed_fract;
-	int32_t	    accel_fract;
-	int32_t		jerk_fract;
+	uint32_t			speed_fract;
+	int32_t	    		accel_fract;
+	int32_t				jerk_fract;
 }motion_phase_t;
 
 typedef struct
 {
+	int32_t     		pulse_count;
+	int32_t     		enc_count;
+	int32_t				pos_001mm;
+}motion_pos_t;
+
+
+typedef struct
+{
 	uint32_t			accu;
+
+	motion_pos_t		pos_cur;
+	motion_pos_t		pos_next;
+
 	motion_phases_e		phase;
 	motion_phase_t  	mf[MF_PHASES_CNT];
 }motion_timer_t;
@@ -38,8 +51,8 @@ void motion_engine_init(void);
 void motion_engine_once(void);
 
 
-void motion_engine_run(uint32_t axis_idx,int32_t dist_001mm,int32_t speed_001mm_s);
-void motion_engine_run_home(uint32_t axis_idx,int32_t speed_001mm_s);
+void motion_engine_run(uint32_t axis_idx,int32_t pos_001mm,int32_t speed_001mm_s,int32_t accel_001mm_s2,int32_t jerk_001mm_s3);
+void motion_engine_run_home(uint32_t axis_idx,int32_t speed_001mm_s,int32_t accel_001mm_s2,int32_t jerk_001mm_s3);
 void motion_engine_stop(uint32_t axis_mask,uint32_t abort_mask);
 uint32_t motion_engine_run_status(void);
 

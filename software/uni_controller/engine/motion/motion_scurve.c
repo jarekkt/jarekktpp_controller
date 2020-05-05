@@ -69,7 +69,7 @@ double solve_qubic(double a, double b, double c,double d)
 
 
 void motion_scurve_calc(motion_calc_t * calc,
-						uint32_t 		dist_001mm,
+						int32_t 		dist_001mm,
 						uint32_t 		speed_safe_001mm_s,
 						uint32_t 		speed_001mm_s,
 						uint32_t 		accel_001mm_s2,
@@ -77,6 +77,18 @@ void motion_scurve_calc(motion_calc_t * calc,
 )
 {
 	 self_t self;
+
+	 if(dist_001mm > 0)
+	 {
+		 calc->dir = 1;
+	 }
+	 else
+	 {
+		 calc->dir  = -1;
+		 dist_001mm = -dist_001mm;
+	 }
+
+
 
 	 self.m_dist    = (double)dist_001mm / 1000.0;
 	 self.m_speed   = (double)speed_001mm_s / 1000.0;
@@ -124,7 +136,7 @@ void motion_scurve_calc(motion_calc_t * calc,
 
 	 if(self.calc->T1_s > self.half_dist)
 	 {
-		 // Too long distance we get, linear period need to be shorter
+		 // Distance overshoot, linear period needs to be shorter
 		 self.calc_dist = self.half_dist - self.calc->T11_s;
 
 		 self.calc->T12 = solve_quad(
@@ -145,7 +157,7 @@ void motion_scurve_calc(motion_calc_t * calc,
 
 	 if(self.calc->T13_v > self.m_speed)
 	 {
-		 // Too big speed - even if distance is ok
+		 // Too big top speed - even if distance is ok
 		 self.calc->T12 = (self.m_speed  -  self.calc->T11_v + self.m_jerk * self.calc->T13 *self.calc->T13 /2 - self.m_accel * self.calc->T13)/  self.m_accel;
 
 		 self.calc->T12_s =  self.calc->T11_v * self.calc->T12 + self.m_accel * self.calc->T12 * self.calc->T12 / 2;
@@ -160,6 +172,11 @@ void motion_scurve_calc(motion_calc_t * calc,
 
 	 self.calc->T1 = self.calc->T11 + self.calc->T12 + self.calc->T13;
 	 self.calc->T2 = 2* (self.half_dist - self.calc->T1_s)/ self.m_speed;
+
+	 // These may be different then specified
+	 self.calc->accel = self.m_accel;
+	 self.calc->speed = self.m_speed;
+	 self.calc->jerk  = self.m_jerk;
 
 
 }

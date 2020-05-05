@@ -82,29 +82,73 @@ int32_t gcode_engine_feedrate(gcode_command_t * cmd,gcode_item_e axis_token,int3
 	}
 	else
 	{
-		fr_001mm_s = ppctx_nv->axis[axis_token].speed_001mm_s;
+		if(is_home!=0)
+		{
+			fr_001mm_s = ppctx_nv->axis[axis_token].speed_001mm_s;
+		}
+		else
+		{
+			fr_001mm_s = ppctx_nv->axis[axis_token].speed_home_001mm_s;
+		}
 	}
 
 	return fr_001mm_s;
 }
 
-
-int32_t gcode_engine_dist(gcode_command_t * cmd,gcode_item_e axis_token)
+int32_t gcode_engine_accelerate(gcode_command_t * cmd,gcode_item_e axis_token,int32_t is_home)
 {
-	float 	dist;
-	int32_t dist_001mm_s;
+	float 	ar;
+	int32_t ar_001mm_s2;
 
-	if(cmd->tokens_present_mask & (1<<axis_token))
+	if(cmd->tokens_present_mask & (1<<GCODE_I_G))
 	{
-		dist = cmd->tokens[axis_token].value.val_float;
-		dist_001mm_s = gcode_engine_units(dist * 1000);
+		ar = cmd->tokens[GCODE_I_G].value.val_float;
+		ar_001mm_s2 = gcode_engine_units(ar * 1000);
 	}
 	else
 	{
-		dist_001mm_s = 0;
+		ar_001mm_s2 = ppctx_nv->axis[axis_token].accel_001mm_s2;
 	}
 
-	return dist_001mm_s;
+	return ar_001mm_s2;
+}
+
+
+int32_t gcode_engine_jerk(gcode_command_t * cmd,gcode_item_e axis_token,int32_t is_home)
+{
+	float 	jr;
+	int32_t jr_001mm_s3;
+
+	if(cmd->tokens_present_mask & (1<<GCODE_I_G))
+	{
+		jr = cmd->tokens[GCODE_I_H].value.val_float;
+		jr_001mm_s3 = gcode_engine_units(jr * 1000);
+	}
+	else
+	{
+		jr_001mm_s3 = ppctx_nv->axis[axis_token].jerk_001mm_s3;
+	}
+
+	return jr_001mm_s3;
+}
+
+
+int32_t gcode_engine_pos(gcode_command_t * cmd,gcode_item_e axis_token)
+{
+	float 	pos;
+	int32_t pos_001mm_s;
+
+	if(cmd->tokens_present_mask & (1<<axis_token))
+	{
+		pos = cmd->tokens[axis_token].value.val_float;
+		pos_001mm_s = gcode_engine_units(pos * 1000);
+	}
+	else
+	{
+		pos_001mm_s = 0;
+	}
+
+	return pos_001mm_s;
 }
 
 void gcode_engine_command(char * cmd_line, const burst_rcv_ctx_t * rcv_ctx)
@@ -112,7 +156,9 @@ void gcode_engine_command(char * cmd_line, const burst_rcv_ctx_t * rcv_ctx)
 	int32_t 			result;
 	gcode_command_t 	cmd;
 	int32_t 			feedrate_001mm_s;
-	int32_t 			dist_001mm;
+	int32_t 			accelerate_001mm_s2;
+	int32_t 			jerk_001mm_s3;
+	int32_t 			pos_001mm;
 	int32_t				ii;
 	uint32_t			any;
 
@@ -133,10 +179,13 @@ void gcode_engine_command(char * cmd_line, const burst_rcv_ctx_t * rcv_ctx)
 				{
 					if(cmd.tokens_present_mask & (1<< ii))
 					{
-						feedrate_001mm_s = gcode_engine_feedrate(&cmd,ii,0);
-						dist_001mm   	 = gcode_engine_dist(&cmd,ii);
+						feedrate_001mm_s    = gcode_engine_feedrate(&cmd,ii,0);
+						accelerate_001mm_s2 = gcode_engine_accelerate(&cmd,ii,0);
+						jerk_001mm_s3       = gcode_engine_jerk(&cmd,ii,0);
 
-						motion_engine_run(ii,dist_001mm,feedrate_001mm_s);
+						pos_001mm   	    = gcode_engine_pos(&cmd,ii);
+
+						motion_engine_run(ii,pos_001mm,feedrate_001mm_s,accelerate_001mm_s2,jerk_001mm_s3);
 					}
 
 				}
@@ -160,8 +209,11 @@ void gcode_engine_command(char * cmd_line, const burst_rcv_ctx_t * rcv_ctx)
 				{
 					if( (cmd.tokens_present_mask & (1<< ii)) || (any ==0))
 					{
-						feedrate_001mm_s = gcode_engine_feedrate(&cmd,ii,1);
-						motion_engine_run_home(ii,feedrate_001mm_s);
+						feedrate_001mm_s     = gcode_engine_feedrate(&cmd,ii,0);
+						accelerate_001mm_s2  = gcode_engine_accelerate(&cmd,ii,0);
+						jerk_001mm_s3        = gcode_engine_jerk(&cmd,ii,0);
+
+						motion_engine_run_home(ii,feedrate_001mm_s,accelerate_001mm_s2,jerk_001mm_s3);
 					}
 				}
 			}break;

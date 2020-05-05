@@ -10,7 +10,7 @@ typedef struct
 	float T1;  		   // Speed    increase
 	float T2;  		   // Constant speed
 	float T3;  		   // Speed    decrease
-	float T11,T12,T13; // Speed increase phase - concave, linear,convex period
+	float T11,T12,T13; // Concave, linear and convex period
 
 	float T11_s;	   // Distance for T11 phase
 	float T11_v;	   // Speed at the end of T11 phase
@@ -24,13 +24,19 @@ typedef struct
 	float T1_s;		   // Distance for T1 phase
 	float T2_s;		   // Distance for T2 phase
 
+	float accel;
+	float speed;
+	float jerk;
+
+	int32_t dir;
+
 
 }motion_calc_t;
 
 
 
 void motion_scurve_calc(motion_calc_t * calc,
-						uint32_t 		dist_001mm,
+						 int32_t 		dist_001mm,
 						uint32_t 		speed_safe_001mm_s,
 						uint32_t 		speed_001mm_s,
 						uint32_t 		accel_001mm_s2,

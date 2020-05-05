@@ -44,6 +44,8 @@ gcode_parse_table_t  parse_table[] =
 				{ 'Y' , GCODE_I_Y, GCODE_V_FLOAT} ,
 				{ 'Z' , GCODE_I_Z, GCODE_V_FLOAT} ,
 				{ 'F' , GCODE_I_F, GCODE_V_FLOAT} ,
+				{ 'G' , GCODE_I_F, GCODE_V_FLOAT} ,
+				{ 'H' , GCODE_I_F, GCODE_V_FLOAT} ,
 			}
 		},
 		{
@@ -53,6 +55,9 @@ gcode_parse_table_t  parse_table[] =
 				{ 'Y' , GCODE_I_Y, GCODE_V_FLOAT} ,
 				{ 'Z' , GCODE_I_Z, GCODE_V_FLOAT} ,
 				{ 'F' , GCODE_I_F, GCODE_V_FLOAT} ,
+				{ 'G' , GCODE_I_F, GCODE_V_FLOAT} ,
+				{ 'H' , GCODE_I_F, GCODE_V_FLOAT} ,
+
 			}
 		},
 		{
@@ -68,6 +73,8 @@ gcode_parse_table_t  parse_table[] =
 				{ 'Y' , GCODE_I_Y, GCODE_V_NONE} ,
 				{ 'Z' , GCODE_I_Z, GCODE_V_NONE} ,
 				{ 'F' , GCODE_I_F, GCODE_V_NONE} ,
+				{ 'G' , GCODE_I_F, GCODE_V_FLOAT} ,
+				{ 'H' , GCODE_I_F, GCODE_V_FLOAT} ,
 			}
 		},
 

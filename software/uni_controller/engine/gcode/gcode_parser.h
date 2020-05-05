@@ -21,6 +21,8 @@ typedef enum
 	GCODE_I_Y = 1,
 	GCODE_I_Z = 2,
 	GCODE_I_F,
+	GCODE_I_G,
+	GCODE_I_H,
 	GCODE_I_CNT
 }gcode_item_e;
 
