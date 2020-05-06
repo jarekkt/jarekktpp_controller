@@ -26,6 +26,7 @@ typedef struct
 
 	float accel;
 	float speed;
+	float speed_start;
 	float jerk;
 
 	int32_t dir;

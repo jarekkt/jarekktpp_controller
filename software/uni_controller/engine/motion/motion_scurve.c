@@ -174,9 +174,11 @@ void motion_scurve_calc(motion_calc_t * calc,
 	 self.calc->T2 = 2* (self.half_dist - self.calc->T1_s)/ self.m_speed;
 
 	 // These may be different then specified
-	 self.calc->accel = self.m_accel;
-	 self.calc->speed = self.m_speed;
-	 self.calc->jerk  = self.m_jerk;
+	 self.calc->accel 		= self.m_accel;
+	 self.calc->speed 		= self.m_speed;
+	 self.calc->speed_start = self.m_speed0;
+	 self.calc->jerk  		= self.m_jerk;
+
 
 
 }

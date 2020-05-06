@@ -40,6 +40,7 @@ typedef struct
 	motion_pos_t		pos_cur;
 	motion_pos_t		pos_next;
 
+	int32_t				dir;
 	motion_phases_e		phase;
 	motion_phase_t  	mf[MF_PHASES_CNT];
 }motion_timer_t;
