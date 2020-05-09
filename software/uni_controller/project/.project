@@ -40,6 +40,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Implementation/network</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/network</locationURI>
+		</link>
+		<link>
 			<name>Implementation/services</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
