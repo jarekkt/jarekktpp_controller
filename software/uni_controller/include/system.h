@@ -31,7 +31,7 @@
 #define ATTRIBUTE_IN_RAM __attribute__  ((section (".fast")))
 
 
-void system_main_init();
-
+void bootloop_init();
+void bootloop_main();
 
 #endif
